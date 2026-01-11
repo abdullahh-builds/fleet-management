@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drivers - Fleet Management System</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
+    
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+    
+    <script>
+        // Load sidebar component
+        fetch('/components/sidebar.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('sidebar-container').innerHTML = data;
+            });
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .main-content {
+            margin-left: 240px;
+            flex: 1;
+            padding: 0;
+        }
+
+        .container {
+            padding: 30px 40px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-add {
+            padding: 10px 20px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 0;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        .btn-add:hover {
+            background: #2563eb;
+        }
+
+        .filters {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 20px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 20px;
+        }
+
+        .tab-item {
+            padding: 10px 0;
+            color: #6b7280;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .tab-item.active {
+            color: #3b82f6;
+            border-bottom-color: #3b82f6;
+        }
+
+        .tab-item:hover {
+            color: #3b82f6;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: white;
+            border: 1px solid #d1d5db;
+            padding: 8px 12px;
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .search-box svg {
+            width: 18px;
+            height: 18px;
+            color: #6b7280;
+            margin-right: 8px;
+        }
+
+        .search-box input {
+            border: none;
+            outline: none;
+            flex: 1;
+            font-size: 14px;
+            color: #1e293b;
+        }
+
+        .search-box input::placeholder {
+            color: #9ca3af;
+        }
+
+        .drivers-card {
+            background: white;
+            border-radius: 0;
+            border: 1px solid #e5e7eb;
+            overflow: hidden;
+        }
+
+        .drivers-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .drivers-table thead {
+            background: #f9fafb;
+        }
+
+        .drivers-table th {
+            text-align: left;
+            padding: 12px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .drivers-table td {
+            padding: 16px;
+            border-top: 1px solid #e5e7eb;
+            font-size: 14px;
+            color: #1e293b;
+        }
+
+        .drivers-table tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        .driver-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .driver-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #3b82f6;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .driver-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .driver-name {
+            font-weight: 500;
+            color: #1e293b;
+        }
+
+        .driver-email {
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-badge.available {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-badge.assigned {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-badge.pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-badge.inactive {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .action-btn {
+            padding: 8px 16px;
+            border: 1px solid #d1d5db;
+            background: white;
+            color: #374151;
+            border-radius: 0;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
+            margin-right: 6px;
+            min-width: 100px;
+        }
+
+        .action-btn:hover {
+            background: #f9fafb;
+            border-color: #3b82f6;
+            color: #3b82f6;
+        }
+
+        .action-btn.assign {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        .action-btn.assign:hover {
+            background: #2563eb;
+            border-color: #2563eb;
+            color: white;
+        }
+
+        .action-btn.approve {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        .action-btn.approve:hover {
+            background: #2563eb;
+            border-color: #2563eb;
+            color: white;
+        }
+
+        .action-btn.deny {
+            background: #6b7280;
+            color: white;
+            border-color: #6b7280;
+        }
+
+        .action-btn.deny:hover {
+            background: #4b5563;
+            border-color: #4b5563;
+            color: white;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            border-radius: 0;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #6b7280;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: #f3f4f6;
+            color: #1e293b;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .vehicle-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .vehicle-item {
+            padding: 16px;
+            border: 2px solid #e5e7eb;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .vehicle-item:hover {
+            border-color: #3b82f6;
+            background: #f0f9ff;
+        }
+
+        .vehicle-item.selected {
+            border-color: #3b82f6;
+            background: #dbeafe;
+        }
+
+        .vehicle-info-modal {
+            flex: 1;
+        }
+
+        .vehicle-name {
+            font-weight: 600;
+            font-size: 15px;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+
+        .vehicle-details {
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        .vehicle-plate {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 4px 10px;
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 4px;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .modal-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 0;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .modal-btn.cancel {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .modal-btn.cancel:hover {
+            background: #e5e7eb;
+        }
+
+        .modal-btn.primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .modal-btn.primary:hover {
+            background: #2563eb;
+        }
+
+        .modal-btn.primary:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6b7280;
+        }
+
+        .action-btn.assign {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        .action-btn.assign:hover {
+            background: #2563eb;
+        }
+
+        .vehicle-badge {
+            padding: 4px 10px;
+            background: #f3f4f6;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #374151;
+            font-weight: 500;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6b7280;
+        }
+
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 16px;
+            color: #d1d5db;
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <button class="menu-toggle" onclick="toggleSidebar()">
+            ☰
+        </button>
+        <div class="logo-text">
+            <span>Fleet Management</span>
+        </div>
+        <div></div>
+    </div>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Sidebar Navigation -->
+    <div id="sidebar-container"></div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="container">
+            <header>
+                <h1>Drivers</h1>
+            </header>
+
+            <!-- Vehicle Assignment Modal -->
+            <div id="assignModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Assign Vehicle</h2>
+                        <button class="modal-close" onclick="closeAssignModal()">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <p style="color: #6b7280; margin-bottom: 16px; font-size: 14px;">Select a vehicle to assign to <strong id="driverName"></strong></p>
+                        <div id="vehicleList" class="vehicle-list"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="modal-btn cancel" onclick="closeAssignModal()">Cancel</button>
+                        <button id="assignBtn" class="modal-btn primary" onclick="confirmAssignment()" disabled>Assign Vehicle</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="filters">
+                <div class="tabs">
+                    <div class="tab-item active" onclick="filterByTab('all')">All</div>
+                    <div class="tab-item" onclick="filterByTab('available')">Available</div>
+                    <div class="tab-item" onclick="filterByTab('assigned')">Assigned</div>
+                    <div class="tab-item" onclick="filterByTab('pending')">Pending Approval</div>
+                </div>
+                <div class="search-box">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    <input type="text" id="searchInput" placeholder="Search drivers..." onkeyup="filterDrivers()">
+                </div>
+            </div>
+
+            <!-- Drivers Table -->
+            <div class="drivers-card">
+                <table class="drivers-table">
+                    <thead>
+                        <tr>
+                            <th>Driver</th>
+                            <th>Status</th>
+                            <th>Role</th>
+                            <th>Assigned Vehicle</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="driversTableBody">
+                        <!-- Drivers will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Driver Details Modal -->
+    <div id="driverDetailsModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2>Driver Details</h2>
+                <button class="modal-close" onclick="closeDriverDetailsModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div style="margin-bottom: 20px;">
+                    <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
+                        <div id="detailAvatar" style="width: 60px; height: 60px; border-radius: 50%; background: #dbeafe; color: #1e40af; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 24px;"></div>
+                        <div>
+                            <div id="detailName" style="font-size: 20px; font-weight: 600; color: #1e293b; margin-bottom: 4px;"></div>
+                            <div id="detailId" style="font-size: 14px; color: #6b7280;"></div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; gap: 12px;">
+                        <div style="display: flex; justify-content: space-between; padding: 12px; background: #f9fafb; border: 1px solid #e5e7eb;">
+                            <span style="color: #6b7280; font-size: 14px;">Email:</span>
+                            <span id="detailEmail" style="color: #1e293b; font-weight: 500; font-size: 14px;"></span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 12px; background: #f9fafb; border: 1px solid #e5e7eb;">
+                            <span style="color: #6b7280; font-size: 14px;">Status:</span>
+                            <span id="detailStatus"></span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 12px; background: #f9fafb; border: 1px solid #e5e7eb;">
+                            <span style="color: #6b7280; font-size: 14px;">Assigned Vehicle:</span>
+                            <span id="detailVehicle" style="color: #1e293b; font-weight: 500; font-size: 14px;"></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="ongoingTripSection" style="display: none;">
+                    <h3 style="font-size: 16px; font-weight: 600; color: #1e293b; margin-bottom: 12px; padding-top: 12px; border-top: 1px solid #e5e7eb;">Ongoing Trip</h3>
+                    
+                    <!-- Mini Map -->
+                    <div id="driverMiniMap" style="height: 200px; width: 100%; margin-bottom: 16px; border-radius: 8px; border: 2px solid #e5e7eb; overflow: hidden;"></div>
+                    
+                    <div style="background: #fef3c7; padding: 16px; border: 1px solid #fbbf24; margin-bottom: 12px;">
+                        <div style="display: grid; gap: 8px;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="color: #92400e; font-size: 13px; font-weight: 500;">Trip ID:</span>
+                                <span id="tripId" style="color: #92400e; font-weight: 600; font-size: 13px;"></span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="color: #92400e; font-size: 13px; font-weight: 500;">Start Location:</span>
+                                <span id="tripStart" style="color: #92400e; font-size: 13px;"></span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="color: #92400e; font-size: 13px; font-weight: 500;">Start Time:</span>
+                                <span id="tripStartTime" style="color: #92400e; font-size: 13px;"></span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="color: #92400e; font-size: 13px; font-weight: 500;">Purpose:</span>
+                                <span id="tripPurpose" style="color: #92400e; font-size: 13px;"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="noTripSection" style="display: none;">
+                    <div style="padding: 20px; text-align: center; color: #6b7280; font-size: 14px; background: #f9fafb; border: 1px solid #e5e7eb; margin-top: 12px;">
+                        No ongoing trip
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn cancel" onclick="closeDriverDetailsModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '/api';
+        let allDrivers = [];
+        let currentTab = 'all';
+        let allVehicles = [];
+        let driverMiniMap = null;
+        let driverMiniMapRouting = null;
+        let driverMapUpdateInterval = null;
+
+        // Check authentication
+        const user = JSON.parse(localStorage.getItem('user') || '{"email":"admin@fleet.com","name":"Admin"}');
+
+        function logout() {
+            localStorage.removeItem('user');
+            window.location.href = '/login.html';
+        }
+
+        // Load drivers (employees only)
+        async function loadDrivers() {
+            try {
+                const [driversRes, vehiclesRes] = await Promise.all([
+                    fetch(`${API_URL}/users`),
+                    fetch(`${API_URL}/vehicles`)
+                ]);
+                
+                const driversData = await driversRes.json();
+                const vehiclesData = await vehiclesRes.json();
+                
+                console.log('Raw API response:', driversData);
+                console.log('Vehicles:', vehiclesData);
+                
+                if (!driversData.success || !driversData.users) {
+                    console.error('Invalid response from API');
+                    document.getElementById('driversTableBody').innerHTML = 
+                        '<tr><td colspan="5" style="text-align: center; padding: 60px 20px; color: #ef4444;">Failed to load drivers</td></tr>';
+                    return;
+                }
+                
+                // Filter only employees (not admins)
+                const employees = driversData.users.filter(u => u.role === 'EMPLOYEE');
+                console.log('Filtered employees:', employees);
+                
+                allDrivers = employees.map(u => ({
+                    user_id: u.user_id,
+                    email: u.email,
+                    name: u.name,
+                    username: u.name,
+                    role: u.role,
+                    status: u.status,
+                    assignedVehicle: u.assigned_vehicle && u.assigned_vehicle !== 'None' ? u.assigned_vehicle : null,
+                    assigned_vehicle: u.assigned_vehicle
+                }));
+                
+                allVehicles = vehiclesData.data || [];
+                
+                console.log('Mapped drivers:', allDrivers);
+                console.log('About to display drivers...');
+                
+                displayDrivers(allDrivers);
+            } catch (error) {
+                console.error('Error loading drivers:', error);
+                document.getElementById('driversTableBody').innerHTML = 
+                    '<tr><td colspan="5" style="text-align: center; padding: 60px 20px; color: #ef4444;">Error: ' + error.message + '</td></tr>';
+            }
+        }
+
+        function filterByTab(tab) {
+            currentTab = tab;
+            
+            document.querySelectorAll('.tab-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            filterDrivers();
+        }
+
+        function filterDrivers() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            let filtered = allDrivers.filter(d => {
+                const matchesSearch = (d.name && d.name.toLowerCase().includes(searchTerm)) ||
+                       (d.email && d.email.toLowerCase().includes(searchTerm));
+                
+                if (currentTab === 'available') {
+                    return matchesSearch && d.status === 'ACTIVE' && !d.assignedVehicle;
+                } else if (currentTab === 'assigned') {
+                    return matchesSearch && d.assignedVehicle;
+                } else if (currentTab === 'pending') {
+                    return matchesSearch && d.status === 'PENDING';
+                }
+                
+                return matchesSearch;
+            });
+            
+            displayDrivers(filtered);
+        }
+
+        function displayDrivers(drivers) {
+            const tbody = document.getElementById('driversTableBody');
+            
+            if (drivers.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 60px 20px; color: #6b7280;">No drivers found</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = drivers.map(d => {
+                let statusClass = 'available';
+                let statusText = 'Available';
+                
+                if (d.status === 'PENDING') {
+                    statusClass = 'pending';
+                    statusText = 'Pending';
+                } else if (d.status === 'INACTIVE') {
+                    statusClass = 'inactive';
+                    statusText = 'Inactive';
+                } else if (d.assignedVehicle) {
+                    statusClass = 'assigned';
+                    statusText = 'Assigned';
+                }
+                
+                const initials = d.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+                
+                const vehicle = d.assignedVehicle ? allVehicles.find(v => v.id === d.assignedVehicle) : null;
+                const vehicleDisplay = vehicle ? `<span class="vehicle-badge">${vehicle.name}</span>` : '-';
+                
+                let actions = '';
+                if (d.status === 'PENDING') {
+                    actions = `
+                        <button class="action-btn approve" onclick="approveDriver('${d.email}')">Approve</button>
+                        <button class="action-btn deny" onclick="denyDriver('${d.email}')">Deny</button>
+                    `;
+                } else if (d.status === 'ACTIVE') {
+                    if (d.assignedVehicle) {
+                        actions = `<button class="action-btn" onclick="unassignVehicle('${d.email}')">Unassign</button>`;
+                    } else {
+                        actions = `<button class="action-btn assign" onclick="showAssignModal('${d.email}', '${d.name}')">Assign Vehicle</button>`;
+                    }
+                    actions += `<button class="action-btn" onclick="deactivateDriver('${d.email}')">Deactivate</button>`;
+                } else if (d.status === 'INACTIVE') {
+                    actions = `
+                        <button class="action-btn approve" onclick="reactivateDriver('${d.email}')">Reactivate</button>
+                        <button class="action-btn deny" onclick="removeDriver('${d.email}')">Remove</button>
+                    `;
+                }
+                
+                return `
+                    <tr style="cursor: pointer;" onclick="showDriverDetails('${d.email}', event)">
+                        <td>
+                            <div class="driver-info">
+                                <div class="driver-avatar">${initials}</div>
+                                <div class="driver-details">
+                                    <div class="driver-name">${d.name}</div>
+                                    <div class="driver-meta">${d.email}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        <td>${d.role}</td>
+                        <td>${vehicleDisplay}</td>
+                        <td onclick="event.stopPropagation()">${actions}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function approveDriver(email) {
+            try {
+                const res = await fetch(`${API_URL}/auth/users/${email}/status`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: 'ACTIVE' })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert('Driver approved!');
+                    loadDrivers();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error approving driver:', error);
+                alert('Failed to approve driver');
+            }
+        }
+
+        async function denyDriver(email) {
+            if (!confirm('Are you sure you want to deny this driver? This will set them to inactive.')) return;
+            try {
+                const res = await fetch(`${API_URL}/auth/users/${email}/status`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: 'INACTIVE' })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert('Driver denied');
+                    loadDrivers();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error denying driver:', error);
+                alert('Failed to deny driver');
+            }
+        }
+
+        async function deactivateDriver(email) {
+            if (!confirm('Are you sure you want to deactivate this driver?')) return;
+            try {
+                const res = await fetch(`${API_URL}/auth/users/${email}/status`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: 'INACTIVE' })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert('Driver deactivated');
+                    loadDrivers();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error deactivating driver:', error);
+                alert('Failed to deactivate driver');
+            }
+        }
+
+        async function reactivateDriver(email) {
+            if (!confirm('Are you sure you want to reactivate this driver?')) return;
+            try {
+                const res = await fetch(`${API_URL}/auth/users/${email}/status`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: 'ACTIVE' })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert('Driver reactivated successfully!');
+                    loadDrivers();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error reactivating driver:', error);
+                alert('Failed to reactivate driver');
+            }
+        }
+
+        async function removeDriver(email) {
+            if (!confirm('Are you sure you want to permanently remove this driver? This action cannot be undone.')) return;
+            try {
+                const res = await fetch(`${API_URL}/auth/users/${email}`, {
+                    method: 'DELETE'
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert('Driver removed successfully');
+                    loadDrivers();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error removing driver:', error);
+                alert('Failed to remove driver');
+            }
+        }
+
+        let selectedDriverEmail = null;
+        let selectedVehicleId = null;
+
+        function showAssignModal(email, name) {
+            selectedDriverEmail = email;
+            selectedVehicleId = null;
+            
+            const availableVehicles = allVehicles.filter(v => v.status === 'AVAILABLE');
+            
+            document.getElementById('driverName').textContent = name;
+            const vehicleList = document.getElementById('vehicleList');
+            const assignBtn = document.getElementById('assignBtn');
+            
+            if (availableVehicles.length === 0) {
+                vehicleList.innerHTML = `
+                    <div class="empty-state">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin: 0 auto 12px;">
+                            <path d="M12 9V11M12 15H12.01M5.07 19H18.93C20.5 19 21.5 17.31 20.71 15.9L13.78 4.1C12.99 2.69 11 2.69 10.21 4.1L3.28 15.9C2.5 17.31 3.5 19 5.07 19Z" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <p style="font-weight: 500; margin-bottom: 4px;">No Available Vehicles</p>
+                        <p style="font-size: 13px;">All vehicles are currently assigned or unavailable.</p>
+                    </div>
+                `;
+                assignBtn.disabled = true;
+            } else {
+                vehicleList.innerHTML = availableVehicles.map(v => `
+                    <div class="vehicle-item" onclick="selectVehicle('${v.id}', this)">
+                        <div class="vehicle-info-modal">
+                            <div class="vehicle-name">${v.name}</div>
+                            <div class="vehicle-details">${v.year} • ${v.make} ${v.model} • ${v.type}</div>
+                        </div>
+                        <div class="vehicle-plate">${v.numberPlate}</div>
+                    </div>
+                `).join('');
+            }
+            
+            document.getElementById('assignModal').classList.add('active');
+        }
+
+        function closeAssignModal() {
+            document.getElementById('assignModal').classList.remove('active');
+            selectedDriverEmail = null;
+            selectedVehicleId = null;
+        }
+
+        function selectVehicle(vehicleId, element) {
+            // Remove previous selection
+            document.querySelectorAll('.vehicle-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            // Select current vehicle
+            element.classList.add('selected');
+            selectedVehicleId = vehicleId;
+            
+            // Enable assign button
+            document.getElementById('assignBtn').disabled = false;
+        }
+
+        function confirmAssignment() {
+            if (selectedDriverEmail && selectedVehicleId) {
+                assignVehicle(selectedDriverEmail, selectedVehicleId);
+                closeAssignModal();
+            }
+        }
+
+        async function assignVehicle(email, vehicleId) {
+            try {
+                const res = await fetch(`${API_URL}/users/assign-vehicle`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, vehicleId })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert('Vehicle assigned successfully!');
+                    await loadVehicles(); // Reload vehicles to update status
+                    loadDrivers();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error assigning vehicle:', error);
+            }
+        }
+
+        async function unassignVehicle(email) {
+            if (!confirm('Are you sure you want to unassign the vehicle?')) return;
+            try {
+                const res = await fetch(`${API_URL}/users/unassign-vehicle`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert('Vehicle unassigned');
+                    await loadVehicles(); // Reload vehicles to update status
+                    loadDrivers();
+                }
+            } catch (error) {
+                console.error('Error unassigning vehicle:', error);
+            }
+        }
+
+        async function showDriverDetails(email, event) {
+            try {
+                // Get driver info from already loaded data
+                const driver = allDrivers.find(d => d.email === email);
+                if (!driver) {
+                    alert('Driver not found');
+                    return;
+                }
+                
+                // Get initials
+                const initials = driver.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+                
+                // Populate basic info
+                document.getElementById('detailAvatar').textContent = initials;
+                document.getElementById('detailName').textContent = driver.name;
+                document.getElementById('detailId').textContent = driver.user_id;
+                document.getElementById('detailEmail').textContent = driver.email;
+                
+                // Status badge
+                let statusClass = 'available';
+                let statusText = driver.status;
+                if (driver.status === 'ACTIVE') {
+                    statusClass = 'available';
+                } else if (driver.status === 'PENDING') {
+                    statusClass = 'pending';
+                } else if (driver.status === 'INACTIVE') {
+                    statusClass = 'inactive';
+                }
+                document.getElementById('detailStatus').innerHTML = `<span class="status-badge ${statusClass}">${statusText}</span>`;
+                
+                // Vehicle info
+                if (driver.assignedVehicle) {
+                    const vehicle = allVehicles.find(v => v.id === driver.assignedVehicle);
+                    document.getElementById('detailVehicle').textContent = vehicle ? `${vehicle.name} (${vehicle.number_plate})` : driver.assignedVehicle;
+                } else {
+                    document.getElementById('detailVehicle').textContent = 'Not assigned';
+                }
+                
+                // Check for ongoing trip
+                const tripRes = await fetch(`${API_URL}/trips?status=ONGOING&driver_id=${driver.user_id}`);
+                const tripData = await tripRes.json();
+                
+                if (tripData.success && tripData.trips.length > 0) {
+                    const trip = tripData.trips[0];
+                    document.getElementById('tripId').textContent = trip.trip_id;
+                    document.getElementById('tripStart').textContent = trip.start_location || 'N/A';
+                    document.getElementById('tripStartTime').textContent = new Date(trip.start_time).toLocaleString();
+                    document.getElementById('tripPurpose').textContent = trip.purpose || 'N/A';
+                    document.getElementById('ongoingTripSection').style.display = 'block';
+                    document.getElementById('noTripSection').style.display = 'none';
+                    
+                    // Initialize mini map with route
+                    setTimeout(() => initializeDriverMiniMap(trip), 100);
+                } else {
+                    document.getElementById('ongoingTripSection').style.display = 'none';
+                    document.getElementById('noTripSection').style.display = 'block';
+                    cleanupDriverMiniMap();
+                }
+                
+                document.getElementById('driverDetailsModal').classList.add('active');
+            } catch (error) {
+                console.error('Error loading driver details:', error);
+                alert('Failed to load driver details');
+            }
+        }
+
+        function closeDriverDetailsModal() {
+            document.getElementById('driverDetailsModal').classList.remove('active');
+            cleanupDriverMiniMap();
+        }
+
+        function initializeDriverMiniMap(trip) {
+            if (!trip.start_lat || !trip.start_lon || !trip.dest_lat || !trip.dest_lon) {
+                console.log('Trip missing coordinates');
+                return;
+            }
+
+            try {
+                // Clean up existing map
+                if (driverMiniMap) {
+                    driverMiniMap.remove();
+                }
+
+                // Initialize map
+                driverMiniMap = L.map('driverMiniMap').setView([trip.start_lat, trip.start_lon], 12);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap',
+                    maxZoom: 19
+                }).addTo(driverMiniMap);
+
+                // Add start marker (green)
+                L.marker([trip.start_lat, trip.start_lon], {
+                    icon: L.divIcon({
+                        html: '<div style="width:12px;height:12px;background:#10b981;border:2px solid white;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,0.3);"></div>',
+                        iconSize: [16, 16],
+                        className: ''
+                    })
+                }).addTo(driverMiniMap);
+
+                // Add destination marker (red)
+                L.marker([trip.dest_lat, trip.dest_lon], {
+                    icon: L.icon({
+                        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+                        iconSize: [20, 33],
+                        iconAnchor: [10, 33]
+                    })
+                }).addTo(driverMiniMap);
+
+                // Add route
+                driverMiniMapRouting = L.Routing.control({
+                    waypoints: [
+                        L.latLng(trip.start_lat, trip.start_lon),
+                        L.latLng(trip.dest_lat, trip.dest_lon)
+                    ],
+                    routeWhileDragging: false,
+                    showAlternatives: false,
+                    addWaypoints: false,
+                    lineOptions: {
+                        styles: [{ color: '#3b82f6', opacity: 0.7, weight: 4 }]
+                    },
+                    createMarker: function() { return null; },
+                    show: false,
+                    fitSelectedRoutes: true,
+                    router: L.Routing.osrmv1({
+                        serviceUrl: 'https://router.project-osrm.org/route/v1'
+                    })
+                }).addTo(driverMiniMap);
+
+                // Start updating live position
+                updateDriverLivePosition(trip.trip_id);
+                if (driverMapUpdateInterval) clearInterval(driverMapUpdateInterval);
+                driverMapUpdateInterval = setInterval(() => updateDriverLivePosition(trip.trip_id), 5000);
+
+                console.log('Driver mini map initialized');
+            } catch (error) {
+                console.error('Error initializing driver mini map:', error);
+            }
+        }
+
+        async function updateDriverLivePosition(tripId) {
+            try {
+                const res = await fetch(`${API_URL}/trips?status=ONGOING`);
+                const data = await res.json();
+                if (data.success && data.trips.length > 0) {
+                    const trip = data.trips.find(t => t.trip_id === tripId);
+                    if (trip && trip.current_lat && trip.current_lon && driverMiniMap) {
+                        // Remove old marker
+                        if (window.driverLiveMarker) {
+                            driverMiniMap.removeLayer(window.driverLiveMarker);
+                        }
+                        
+                        // Add live position marker (blue pulsing)
+                        window.driverLiveMarker = L.marker([trip.current_lat, trip.current_lon], {
+                            icon: L.divIcon({
+                                html: '<div style="width:10px;height:10px;background:#3b82f6;border:2px solid white;border-radius:50%;box-shadow:0 0 0 6px rgba(59,130,246,0.2);"></div>',
+                                iconSize: [14, 14],
+                                className: ''
+                            })
+                        }).addTo(driverMiniMap);
+                        
+                        // Center on live position
+                        driverMiniMap.setView([trip.current_lat, trip.current_lon], driverMiniMap.getZoom());
+                    }
+                }
+            } catch (error) {
+                console.error('Error updating driver live position:', error);
+            }
+        }
+
+        function cleanupDriverMiniMap() {
+            if (driverMapUpdateInterval) {
+                clearInterval(driverMapUpdateInterval);
+                driverMapUpdateInterval = null;
+            }
+            if (driverMiniMapRouting && driverMiniMap) {
+                driverMiniMap.removeControl(driverMiniMapRouting);
+                driverMiniMapRouting = null;
+            }
+            if (driverMiniMap) {
+                driverMiniMap.remove();
+                driverMiniMap = null;
+            }
+            if (window.driverLiveMarker) {
+                window.driverLiveMarker = null;
+            }
+        }
+
+        // Load drivers on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDrivers();
+        });
+    </script>
+</body>
+</html>

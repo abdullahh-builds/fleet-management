@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fuel Management - Fleet Management</title>
+    <link rel="stylesheet" href="/css/mobile-responsive.css">
+    <script>
+        fetch('/components/sidebar.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('sidebar-container').innerHTML = data;
+                setupMobileSidebar();
+            });
+
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar') || document.querySelector('#sidebar-container > div');
+            const overlay = document.querySelector('.sidebar-overlay');
+            if (sidebar && overlay) {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            }
+        }
+
+        function setupMobileSidebar() {
+            if (window.innerWidth <= 768) {
+                const sidebar = document.querySelector('.sidebar') || document.querySelector('#sidebar-container > div');
+                if (sidebar) {
+                    const links = sidebar.querySelectorAll('a');
+                    links.forEach(link => {
+                        link.addEventListener('click', () => {
+                            const sidebarEl = document.querySelector('.sidebar') || document.querySelector('#sidebar-container > div');
+                            const overlay = document.querySelector('.sidebar-overlay');
+                            if (sidebarEl && overlay) {
+                                sidebarEl.classList.remove('active');
+                                overlay.classList.remove('active');
+                            }
+                        });
+                    });
+                }
+            }
+        }
+
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) {
+                const sidebar = document.querySelector('.sidebar') || document.querySelector('#sidebar-container > div');
+                const overlay = document.querySelector('.sidebar-overlay');
+                if (sidebar && overlay) {
+                    sidebar.classList.remove('active');
+                    overlay.classList.remove('active');
+                }
+            }
+        });
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .main-content {
+            margin-left: 240px;
+            flex: 1;
+            padding: 30px 40px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #64748b;
+            transition: all 0.2s;
+        }
+
+        .tab.active {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #f9fafb;
+        }
+
+        th {
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 16px;
+            font-size: 14px;
+            color: #1e293b;
+            border-top: 1px solid #f3f4f6;
+        }
+
+        tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .badge-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-approved {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-completed {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-rejected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            margin-right: 4px;
+        }
+
+        .btn-approve {
+            background: #10b981;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+
+        .btn-approve:hover {
+            background: #059669;
+            transform: scale(1.1);
+        }
+
+        .btn-reject {
+            background: #ef4444;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+
+        .btn-reject:hover {
+            background: #dc2626;
+            transform: scale(1.1);
+        }
+
+        .btn-view {
+            background: #3b82f6;
+            color: white;
+            padding: 6px 16px;
+        }
+
+        .btn-view:hover {
+            background: #2563eb;
+        }
+
+        .empty-state {
+            padding: 60px 20px;
+            text-align: center;
+            color: #94a3b8;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 24px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: #94a3b8;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .detail-label {
+            font-weight: 500;
+            color: #6b7280;
+        }
+
+        .detail-value {
+            color: #1e293b;
+        }
+
+        .receipt-image {
+            width: 100%;
+            border-radius: 8px;
+            margin-top: 16px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <button class="menu-toggle" onclick="toggleSidebar()">
+            ☰
+        </button>
+        <div class="logo-text">
+            <span>Fleet Management</span>
+        </div>
+        <div></div>
+    </div>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <div id="sidebar-container"></div>
+
+    <div class="main-content">
+        <header>
+            <h1>Fuel Management</h1>
+        </header>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('pending')">Pending</button>
+            <button class="tab" onclick="switchTab('approved')">Approved</button>
+            <button class="tab" onclick="switchTab('completed')">Completed</button>
+            <button class="tab" onclick="switchTab('all')">All</button>
+        </div>
+
+        <div class="card">
+            <div id="pendingTab" class="tab-content active">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Date</th>
+                            <th>Driver</th>
+                            <th>Vehicle</th>
+                            <th>Fuel Type</th>
+                            <th>Liters</th>
+                            <th>Cost</th>
+                            <th>Station</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pendingTableBody">
+                        <tr><td colspan="9" class="empty-state">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="approvedTab" class="tab-content">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Date</th>
+                            <th>Driver</th>
+                            <th>Vehicle</th>
+                            <th>Fuel Type</th>
+                            <th>Liters</th>
+                            <th>Cost</th>
+                            <th>Station</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="approvedTableBody">
+                        <tr><td colspan="9" class="empty-state">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="completedTab" class="tab-content">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Date</th>
+                            <th>Driver</th>
+                            <th>Vehicle</th>
+                            <th>Fuel Type</th>
+                            <th>Liters</th>
+                            <th>Cost</th>
+                            <th>Station</th>
+                            <th>Receipt</th>
+                        </tr>
+                    </thead>
+                    <tbody id="completedTableBody">
+                        <tr><td colspan="9" class="empty-state">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="allTab" class="tab-content">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Date</th>
+                            <th>Driver</th>
+                            <th>Vehicle</th>
+                            <th>Fuel Type</th>
+                            <th>Liters</th>
+                            <th>Cost</th>
+                            <th>Status</th>
+                            <th>View</th>
+                        </tr>
+                    </thead>
+                    <tbody id="allTableBody">
+                        <tr><td colspan="9" class="empty-state">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Receipt Modal -->
+    <div id="receiptModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Fuel Request Details</h2>
+                <button class="modal-close" onclick="closeReceiptModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="receiptDetails">
+                <!-- Details will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '/api';
+        let allRecords = [];
+
+        function switchTab(tab) {
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById(tab + 'Tab').classList.add('active');
+        }
+
+        async function loadFuelRecords() {
+            try {
+                const res = await fetch(`${API_URL}/fuel`);
+                const data = await res.json();
+
+                if (data.success) {
+                    allRecords = data.records;
+                    renderPendingRecords();
+                    renderApprovedRecords();
+                    renderCompletedRecords();
+                    renderAllRecords();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function renderPendingRecords() {
+            const tbody = document.getElementById('pendingTableBody');
+            const pending = allRecords.filter(r => r.status === 'pending');
+
+            if (pending.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="empty-state">No pending requests</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = pending.map(r => `
+                <tr>
+                    <td>${r.fuel_id}</td>
+                    <td>${new Date(r.filled_at).toLocaleDateString()}</td>
+                    <td>${r.driver_name}</td>
+                    <td>${r.vehicle_name}</td>
+                    <td>${r.fuel_type}</td>
+                    <td>${parseFloat(r.quantity_liters).toFixed(2)} L</td>
+                    <td>Rs ${parseFloat(r.total_cost).toFixed(2)}</td>
+                    <td>${r.fuel_station || '-'}</td>
+                    <td>
+                        <button class="action-btn btn-approve" onclick="approveFuel('${r.fuel_id}')" title="Approve">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M13.5 4L6 11.5L2.5 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                        <button class="action-btn btn-reject" onclick="rejectFuel('${r.fuel_id}')" title="Reject">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 4L4 12M4 4L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderApprovedRecords() {
+            const tbody = document.getElementById('approvedTableBody');
+            const approved = allRecords.filter(r => r.status === 'approved');
+
+            if (approved.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="empty-state">No approved requests</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = approved.map(r => `
+                <tr>
+                    <td>${r.fuel_id}</td>
+                    <td>${new Date(r.filled_at).toLocaleDateString()}</td>
+                    <td>${r.driver_name}</td>
+                    <td>${r.vehicle_name}</td>
+                    <td>${r.fuel_type}</td>
+                    <td>${parseFloat(r.quantity_liters).toFixed(2)} L</td>
+                    <td>Rs ${parseFloat(r.total_cost).toFixed(2)}</td>
+                    <td>${r.fuel_station || '-'}</td>
+                    <td><span class="badge badge-approved">Waiting for receipt</span></td>
+                </tr>
+            `).join('');
+        }
+
+        function renderCompletedRecords() {
+            const tbody = document.getElementById('completedTableBody');
+            const completed = allRecords.filter(r => r.status === 'completed');
+
+            if (completed.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="empty-state">No completed requests</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = completed.map(r => `
+                <tr>
+                    <td>${r.fuel_id}</td>
+                    <td>${new Date(r.filled_at).toLocaleDateString()}</td>
+                    <td>${r.driver_name}</td>
+                    <td>${r.vehicle_name}</td>
+                    <td>${r.fuel_type}</td>
+                    <td>${parseFloat(r.quantity_liters).toFixed(2)} L</td>
+                    <td>Rs ${parseFloat(r.total_cost).toFixed(2)}</td>
+                    <td>${r.fuel_station || '-'}</td>
+                    <td>
+                        <button class="action-btn btn-view" onclick="viewReceipt('${r.fuel_id}')">View Receipt</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderAllRecords() {
+            const tbody = document.getElementById('allTableBody');
+
+            if (allRecords.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="empty-state">No records found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = allRecords.map(r => `
+                <tr>
+                    <td>${r.fuel_id}</td>
+                    <td>${new Date(r.filled_at).toLocaleDateString()}</td>
+                    <td>${r.driver_name}</td>
+                    <td>${r.vehicle_name}</td>
+                    <td>${r.fuel_type}</td>
+                    <td>${parseFloat(r.quantity_liters).toFixed(2)} L</td>
+                    <td>Rs ${parseFloat(r.total_cost).toFixed(2)}</td>
+                    <td><span class="badge badge-${r.status}">${r.status}</span></td>
+                    <td>
+                        <button class="action-btn btn-view" onclick="viewDetails('${r.fuel_id}')">View</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function approveFuel(fuelId) {
+            if (!confirm('Approve this fuel request?')) return;
+
+            try {
+                const res = await fetch(`${API_URL}/fuel/${fuelId}/approve`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const result = await res.json();
+                if (result.success) {
+                    alert('Request approved!');
+                    loadFuelRecords();
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch (error) {
+                alert('Failed to approve request');
+            }
+        }
+
+        async function rejectFuel(fuelId) {
+            if (!confirm('Reject this fuel request?')) return;
+
+            try {
+                const res = await fetch(`${API_URL}/fuel/${fuelId}/reject`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const result = await res.json();
+                if (result.success) {
+                    alert('Request rejected!');
+                    loadFuelRecords();
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch (error) {
+                alert('Failed to reject request');
+            }
+        }
+
+        function viewReceipt(fuelId) {
+            const record = allRecords.find(r => r.fuel_id === fuelId);
+            if (!record) return;
+
+            const details = `
+                <div class="detail-row">
+                    <span class="detail-label">Fuel ID:</span>
+                    <span class="detail-value">${record.fuel_id}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Driver:</span>
+                    <span class="detail-value">${record.driver_name}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Vehicle:</span>
+                    <span class="detail-value">${record.vehicle_name}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Fuel Type:</span>
+                    <span class="detail-value">${record.fuel_type}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Quantity:</span>
+                    <span class="detail-value">${parseFloat(record.quantity_liters).toFixed(2)} Liters</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Cost per Liter:</span>
+                    <span class="detail-value">Rs ${parseFloat(record.cost_per_liter).toFixed(2)}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Total Cost:</span>
+                    <span class="detail-value">Rs ${parseFloat(record.total_cost).toFixed(2)}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Fuel Station:</span>
+                    <span class="detail-value">${record.fuel_station || '-'}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Location:</span>
+                    <span class="detail-value">${record.location || '-'}</span>
+                </div>
+                ${record.receipt_number ? `
+                <div class="detail-row">
+                    <span class="detail-label">Receipt Number:</span>
+                    <span class="detail-value">${record.receipt_number}</span>
+                </div>
+                ` : ''}
+                ${record.notes ? `
+                <div class="detail-row">
+                    <span class="detail-label">Notes:</span>
+                    <span class="detail-value">${record.notes}</span>
+                </div>
+                ` : ''}
+                ${record.receipt_image ? `
+                <div style="margin-top: 20px;">
+                    <strong>Receipt Image:</strong>
+                    <img src="${record.receipt_image}" class="receipt-image" alt="Receipt">
+                </div>
+                ` : '<p style="margin-top:20px; color:#94a3b8;">No receipt uploaded yet</p>'}
+            `;
+
+            document.getElementById('receiptDetails').innerHTML = details;
+            document.getElementById('receiptModal').classList.add('active');
+        }
+
+        function viewDetails(fuelId) {
+            viewReceipt(fuelId);
+        }
+
+        function closeReceiptModal() {
+            document.getElementById('receiptModal').classList.remove('active');
+        }
+
+        document.addEventListener('DOMContentLoaded', loadFuelRecords);
+    </script>
+</body>
+</html>

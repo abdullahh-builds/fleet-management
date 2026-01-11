@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Fleet Management System</title>
+    <link rel="stylesheet" href="css/auth-styles.css">
+    <link rel="stylesheet" href="/css/mobile-responsive.css">
+</head>
+<body>
+    <div class="auth-wrapper">
+        <div class="auth-container">
+            <div class="auth-header" style="text-align:center;">
+                <img src="/assets/logo.svg" alt="Fleet Manager Logo" class="logo" style="width: 140px; height: 140px; object-fit: contain; margin: 0 auto 2rem; display: block;">
+                <h1 class="auth-title">Fleet Management</h1>
+                <p>Login to access your dashboard</p>
+            </div>
+
+            <div class="alert error" id="errorAlert"></div>
+            <div class="alert success" id="successAlert"></div>
+            <div class="alert info" id="infoAlert"></div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                </div>
+
+                <div class="form-group password-toggle">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                    <button type="button" class="toggle-btn" id="togglePassword">Show</button>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="loginBtn">
+                    <span>Login</span>
+                </button>
+            </form>
+
+            <p class="auth-link">
+                Don't have an account? <a href="signup.html">Sign up here</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Toggle password visibility
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const passwordField = document.getElementById('password');
+            const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordField.setAttribute('type', type);
+            this.textContent = type === 'password' ? 'Show' : 'Hide';
+        });
+
+        // Show alert
+        function showAlert(type, message) {
+            const alert = document.getElementById(`${type}Alert`);
+            alert.textContent = message;
+            alert.style.display = 'block';
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 5000);
+        }
+
+        // Handle login form submission
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('loginBtn');
+
+            // Basic validation
+            if (!email || !password) {
+                showAlert('error', 'Please fill in all fields');
+                return;
+            }
+
+            // Disable button
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<span class="spinner"></span><span>Logging in...</span>';
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Store user info
+                    sessionStorage.setItem('isAuthenticated', 'true');
+                    sessionStorage.setItem('user', JSON.stringify(data.user));
+                    
+                    showAlert('success', 'Login successful! Redirecting...');
+                    
+                    // Redirect based on role and status
+                    setTimeout(() => {
+                        if (data.user.role === 'ADMIN') {
+                            window.location.href = 'index.html';
+                        } else if (data.user.status === 'ACTIVE') {
+                            window.location.href = 'employee-dashboard.html';
+                        } else {
+                            window.location.href = 'pending.html';
+                        }
+                    }, 1000);
+                } else {
+                    showAlert('error', data.message || 'Login failed');
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = '<span>Login</span>';
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showAlert('error', 'Unable to connect to server. Please try again.');
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '<span>Login</span>';
+            }
+        });
+
+        // Check if already logged in and redirect accordingly
+        function checkExistingSession() {
+            const isAuthenticated = sessionStorage.getItem('isAuthenticated');
+            const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+            
+            if (isAuthenticated === 'true' && user.email) {
+                if (user.role === 'ADMIN') {
+                    window.location.href = 'index.html';
+                } else if (user.status === 'ACTIVE') {
+                    window.location.href = 'employee-dashboard.html';
+                } else if (user.status === 'PENDING') {
+                    window.location.href = 'pending.html';
+                }
+            }
+        }
+
+        // Check session on page load
+        checkExistingSession();
+    </script>
+</body>
+</html>

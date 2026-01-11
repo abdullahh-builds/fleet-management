@@ -1,0 +1,28 @@
+[dotenv@17.2.3] injecting env (3) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+🐘 Using PostgreSQL database
+✓ Migration: Made current_odometer nullable
+✓ Migration: Made current_odometer nullable
+✓ Migration: Added requested_by column
+✓ Migration: Added requested_by column
+❌ Database initialization error: column "status" does not exist
+❌ Database initialization error: column "status" does not exist
+✅ Loaded 4 users from PostgreSQL
+✅ Loaded 4 users from PostgreSQL
+✅ Loaded 16 vehicles from PostgreSQL
+✅ Admin account already exists: admin@fleet.com
+========================================
+  Fleet Management API Server
+========================================
+🚀 Server running on http://localhost:3000
+📊 Storage: PostgreSQL
+📊 API Endpoints:
+   GET    /api/vehicles
+   POST   /api/vehicles
+   GET    /api/drivers
+   POST   /api/drivers/assign
+   GET    /api/maintenance
+   POST   /api/routes
+   GET    /api/stats
+========================================
+✅ Loaded 16 vehicles from PostgreSQL
+✅ Admin account already exists: admin@fleet.com

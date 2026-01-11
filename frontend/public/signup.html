@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Fleet Management System</title>
+    <link rel="stylesheet" href="css/auth-styles.css">
+    <link rel="stylesheet" href="/css/mobile-responsive.css">
+</head>
+<body>
+    <div class="auth-wrapper">
+        <div class="auth-container">
+            <div class="auth-header" style="text-align: center;">
+                <img src="/assets/logo.svg" alt="Fleet Manager Logo" class="logo" style="width: 140px; height: 140px; object-fit: contain; margin: 0 auto 2rem; display: block;">
+                <h1>Create Account</h1>
+                <p>Join our fleet management system</p>
+            </div>
+
+            <div class="info-box">
+                <p><strong>Note:</strong> Your account will be reviewed by an administrator before activation.</p>
+            </div>
+
+            <div class="alert error" id="errorAlert"></div>
+            <div class="alert success" id="successAlert"></div>
+
+            <form id="signupForm">
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" name="name" placeholder="Enter your full name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Minimum 6 characters" required>
+                </div>
+
+
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Re-enter password" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="signupBtn">
+                    <span>Create Account</span>
+                </button>
+            </form>
+
+            <p class="auth-link">
+                Already have an account? <a href="login.html">Login here</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Show alert
+        function showAlert(type, message) {
+            const alert = document.getElementById(`${type}Alert`);
+            alert.textContent = message;
+            alert.style.display = 'block';
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 5000);
+        }
+
+        // Handle signup form submission
+        document.getElementById('signupForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const signupBtn = document.getElementById('signupBtn');
+
+            // Validation
+            if (!name || !email || !password || !confirmPassword) {
+                showAlert('error', 'Please fill in all fields');
+                return;
+            }
+
+            if (password.length < 6) {
+                showAlert('error', 'Password must be at least 6 characters');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showAlert('error', 'Passwords do not match');
+                return;
+            }
+
+            if (email.toLowerCase() === 'admin@fleet.com') {
+                showAlert('error', 'This email is reserved for system administrator');
+                return;
+            }
+
+            // Disable button
+            signupBtn.disabled = true;
+            signupBtn.innerHTML = '<span class="spinner"></span><span>Creating account...</span>';
+
+            try {
+                const response = await fetch('/api/auth/signup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name, email, password })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showAlert('success', 'Account created successfully! Redirecting to login...');
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 2000);
+                } else {
+                    showAlert('error', data.message || 'Registration failed');
+                    signupBtn.disabled = false;
+                    signupBtn.innerHTML = '<span>Create Account</span>';
+                }
+            } catch (error) {
+                console.error('Signup error:', error);
+                showAlert('error', 'Unable to connect to server. Please try again.');
+                signupBtn.disabled = false;
+                signupBtn.innerHTML = '<span>Create Account</span>';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fuel Management - Fleet Management</title>
+    <link rel="stylesheet" href="/css/mobile-responsive.css">
+    <script>
+        fetch('/components/sidebar.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('sidebar-container').innerHTML = data;
+                setupMobileSidebar();
+            });
+
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar') || document.querySelector('#sidebar-container > div');
+            const overlay = document.querySelector('.sidebar-overlay');
+            if (sidebar && overlay) {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            }
+        }
+
+        function setupMobileSidebar() {
+            if (window.innerWidth <= 768) {
+                const sidebar = document.querySelector('.sidebar') || document.querySelector('#sidebar-container > div');
+                if (sidebar) {
+                    const links = sidebar.querySelectorAll('a');
+                    links.forEach(link => {
+                        link.addEventListener('click', () => {
+                            const sidebarEl = document.querySelector('.sidebar') || document.querySelector('#sidebar-container > div');
+                            const overlay = document.querySelector('.sidebar-overlay');
+                            if (sidebarEl && overlay) {
+                                sidebarEl.classList.remove('active');
+                                overlay.classList.remove('active');
+                            }
+                        });
+                    });
+                }
+            }
+        }
+
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) {
+                const sidebar = document.querySelector('.sidebar') || document.querySelector('#sidebar-container > div');
+                const overlay = document.querySelector('.sidebar-overlay');
+                if (sidebar && overlay) {
+                    sidebar.classList.remove('active');
+                    overlay.classList.remove('active');
+                }
+            }
+        });
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .main-content {
+            margin-left: 240px;
+            flex: 1;
+            padding: 30px 40px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .tab {
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            color: #64748b;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.2s;
+        }
+
+        .tab:hover {
+            color: #3b82f6;
+        }
+
+        .tab.active {
+            color: #3b82f6;
+            border-bottom-color: #3b82f6;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #f9fafb;
+        }
+
+        th {
+            padding: 12px 20px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        td {
+            padding: 16px 20px;
+            font-size: 14px;
+            color: #1e293b;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        .empty-state {
+            padding: 60px 20px;
+            text-align: center;
+            color: #94a3b8;
+        }
+
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .badge-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-approved {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-rejected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-approve {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-approve:hover {
+            background: #059669;
+        }
+
+        .btn-reject {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-reject:hover {
+            background: #dc2626;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <button class="menu-toggle" onclick="toggleSidebar()">
+            ☰
+        </button>
+        <div class="logo-text">
+            <span>Fleet Management</span>
+        </div>
+        <div></div>
+    </div>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <div id="sidebar-container"></div>
+
+    <div class="main-content">
+        <header>
+            <h1>Fuel Management</h1>
+        </header>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('pending')">Pending Requests</button>
+            <button class="tab" onclick="switchTab('approved')">Approved</button>
+            <button class="tab" onclick="switchTab('all')">All Records</button>
+        </div>
+
+        <!-- Pending Tab -->
+        <div id="pendingTab" class="tab-content active">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Pending Fuel Requests</h2>
+                    <span id="pendingCount" style="color: #64748b; font-size: 14px;">0 requests</span>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Driver</th>
+                            <th>Vehicle</th>
+                            <th>Fuel Type</th>
+                            <th>Quantity (L)</th>
+                            <th>Cost/L</th>
+                            <th>Total Cost</th>
+                            <th>Odometer</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pendingTableBody">
+                        <tr>
+                            <td colspan="9" class="empty-state">Loading...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Approved Tab -->
+        <div id="approvedTab" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Approved Fuel Records</h2>
+                    <span id="approvedCount" style="color: #64748b; font-size: 14px;">0 records</span>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Driver</th>
+                            <th>Vehicle</th>
+                            <th>Fuel Type</th>
+                            <th>Quantity (L)</th>
+                            <th>Cost/L</th>
+                            <th>Total Cost</th>
+                            <th>Odometer</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="approvedTableBody">
+                        <tr>
+                            <td colspan="9" class="empty-state">Loading...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- All Records Tab -->
+        <div id="allTab" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2>All Fuel Records</h2>
+                    <span id="allCount" style="color: #64748b; font-size: 14px;">0 records</span>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Driver</th>
+                            <th>Vehicle</th>
+                            <th>Fuel Type</th>
+                            <th>Quantity (L)</th>
+                            <th>Cost/L</th>
+                            <th>Total Cost</th>
+                            <th>Odometer</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="allTableBody">
+                        <tr>
+                            <td colspan="9" class="empty-state">Loading...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '/api';
+        let allRecords = [];
+
+        async function loadAllData() {
+            try {
+                const res = await fetch(`${API_URL}/fuel`);
+                const data = await res.json();
+
+                if (data.success) {
+                    allRecords = data.records;
+                    renderPendingRequests();
+                    renderApprovedRecords();
+                    renderAllRecords();
+                }
+            } catch (error) {
+                console.error('Error loading fuel records:', error);
+                document.getElementById('pendingTableBody').innerHTML = '<tr><td colspan="9" class="empty-state">Error loading data</td></tr>';
+                document.getElementById('approvedTableBody').innerHTML = '<tr><td colspan="9" class="empty-state">Error loading data</td></tr>';
+                document.getElementById('allTableBody').innerHTML = '<tr><td colspan="9" class="empty-state">Error loading data</td></tr>';
+            }
+        }
+
+        function renderPendingRequests() {
+            const pending = allRecords.filter(r => r.status === 'pending');
+            const tbody = document.getElementById('pendingTableBody');
+            document.getElementById('pendingCount').textContent = `${pending.length} requests`;
+
+            if (pending.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9" class="empty-state">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <div>No pending requests</div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = pending.map(r => `
+                <tr>
+                    <td>${new Date(r.filled_at).toLocaleDateString()}<br><span style="font-size: 11px; color: #94a3b8;">${new Date(r.filled_at).toLocaleTimeString()}</span></td>
+                    <td>${r.driver_name || 'N/A'}</td>
+                    <td><strong>${r.vehicle_name || 'N/A'}</strong><br><span style="font-size: 11px; color: #94a3b8;">${r.registration || ''}</span></td>
+                    <td>${r.fuel_type}</td>
+                    <td>${parseFloat(r.quantity_liters).toFixed(2)}</td>
+                    <td>Rs ${parseFloat(r.cost_per_liter).toFixed(2)}</td>
+                    <td><strong>Rs ${parseFloat(r.total_cost).toFixed(2)}</strong></td>
+                    <td>${r.odometer_reading.toLocaleString()} km</td>
+                    <td>
+                        <div class="actions">
+                            <button class="btn btn-approve" onclick="approveFuelRequest('${r.fuel_id}')">Approve</button>
+                            <button class="btn btn-reject" onclick="rejectFuelRequest('${r.fuel_id}')">Reject</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderApprovedRecords() {
+            const approved = allRecords.filter(r => r.status === 'approved');
+            const tbody = document.getElementById('approvedTableBody');
+            document.getElementById('approvedCount').textContent = `${approved.length} records`;
+
+            if (approved.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9" class="empty-state">No approved records</td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = approved.map(r => `
+                <tr>
+                    <td>${new Date(r.filled_at).toLocaleDateString()}<br><span style="font-size: 11px; color: #94a3b8;">${new Date(r.filled_at).toLocaleTimeString()}</span></td>
+                    <td>${r.driver_name || 'N/A'}</td>
+                    <td><strong>${r.vehicle_name || 'N/A'}</strong><br><span style="font-size: 11px; color: #94a3b8;">${r.registration || ''}</span></td>
+                    <td>${r.fuel_type}</td>
+                    <td>${parseFloat(r.quantity_liters).toFixed(2)}</td>
+                    <td>Rs ${parseFloat(r.cost_per_liter).toFixed(2)}</td>
+                    <td><strong>Rs ${parseFloat(r.total_cost).toFixed(2)}</strong></td>
+                    <td>${r.odometer_reading.toLocaleString()} km</td>
+                    <td><span class="badge badge-approved">approved</span></td>
+                </tr>
+            `).join('');
+        }
+
+        function renderAllRecords() {
+            const tbody = document.getElementById('allTableBody');
+            document.getElementById('allCount').textContent = `${allRecords.length} records`;
+
+            if (allRecords.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9" class="empty-state">No fuel records found</td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = allRecords.map(r => `
+                <tr>
+                    <td>${new Date(r.filled_at).toLocaleDateString()}<br><span style="font-size: 11px; color: #94a3b8;">${new Date(r.filled_at).toLocaleTimeString()}</span></td>
+                    <td>${r.driver_name || 'N/A'}</td>
+                    <td><strong>${r.vehicle_name || 'N/A'}</strong><br><span style="font-size: 11px; color: #94a3b8;">${r.registration || ''}</span></td>
+                    <td>${r.fuel_type}</td>
+                    <td>${parseFloat(r.quantity_liters).toFixed(2)}</td>
+                    <td>Rs ${parseFloat(r.cost_per_liter).toFixed(2)}</td>
+                    <td><strong>Rs ${parseFloat(r.total_cost).toFixed(2)}</strong></td>
+                    <td>${r.odometer_reading.toLocaleString()} km</td>
+                    <td><span class="badge badge-${r.status}">${r.status}</span></td>
+                </tr>
+            `).join('');
+        }
+
+        async function approveFuelRequest(fuelId) {
+            if (!confirm('Approve this fuel request?')) return;
+
+            try {
+                const res = await fetch(`${API_URL}/fuel/${fuelId}/approve`, {
+                    method: 'PUT'
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    alert('Fuel request approved successfully!');
+                    loadAllData();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error approving fuel request:', error);
+                alert('Failed to approve fuel request. Please try again.');
+            }
+        }
+
+        async function rejectFuelRequest(fuelId) {
+            if (!confirm('Reject this fuel request?')) return;
+
+            try {
+                const res = await fetch(`${API_URL}/fuel/${fuelId}/reject`, {
+                    method: 'PUT'
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    alert('Fuel request rejected.');
+                    loadAllData();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error rejecting fuel request:', error);
+                alert('Failed to reject fuel request. Please try again.');
+            }
+        }
+
+        function switchTab(tab) {
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.getElementById(tab + 'Tab').classList.add('active');
+        }
+
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', loadAllData);
+    </script>
+</body>
+</html>

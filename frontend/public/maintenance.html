@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maintenance - Fleet Management System</title>
+    <script>
+        // Load sidebar component
+        fetch('/components/sidebar.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('sidebar-container').innerHTML = data;
+            });
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .main-content {
+            margin-left: 240px;
+            flex: 1;
+            padding: 0;
+        }
+
+        .container {
+            padding: 30px 40px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .count-badge {
+            background: #ef4444;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 6px;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 0;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+
+        /* Tabs */
+        .filters {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 20px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 20px;
+        }
+
+        .tab-item {
+            padding: 10px 0;
+            color: #6b7280;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .tab-item.active {
+            color: #3b82f6;
+            border-bottom-color: #3b82f6;
+        }
+
+        .tab-item:hover {
+            color: #3b82f6;
+        }
+
+        /* Maintenance Table */
+        .maintenance-card {
+            background: white;
+            border-radius: 0;
+            border: 1px solid #e5e7eb;
+            overflow: hidden;
+        }
+
+        .maintenance-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .maintenance-table thead {
+            background: #f9fafb;
+        }
+
+        .maintenance-table th {
+            text-align: left;
+            padding: 12px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .maintenance-table td {
+            padding: 16px;
+            border-top: 1px solid #e5e7eb;
+            font-size: 14px;
+            color: #1e293b;
+        }
+
+        .maintenance-table tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        .maintenance-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .maintenance-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #dbeafe;
+            color: #1e40af;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .maintenance-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .maintenance-id {
+            font-weight: 500;
+            color: #1e293b;
+        }
+
+        .maintenance-meta {
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        .priority-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .priority-high {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .priority-medium {
+            background: #fed7aa;
+            color: #9a3412;
+        }
+
+        .priority-low {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-completed {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-overdue {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-completed {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-overdue {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .action-btn {
+            padding: 8px 16px;
+            border: 1px solid #d1d5db;
+            background: white;
+            color: #374151;
+            border-radius: 0;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
+            min-width: 100px;
+        }
+
+        .action-btn:hover {
+            background: #f9fafb;
+            border-color: #3b82f6;
+            color: #3b82f6;
+        }
+
+        .action-btn.complete {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        .action-btn.complete:hover {
+            background: #2563eb;
+            border-color: #2563eb;
+        }
+
+        .icon-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
+        .icon-btn.approve {
+            background: #dbeafe;
+            color: #3b82f6;
+        }
+
+        .icon-btn.approve:hover {
+            background: #bfdbfe;
+            transform: scale(1.1);
+        }
+
+        .icon-btn.reject {
+            background: #fee2e2;
+            color: #ef4444;
+        }
+
+        .icon-btn.reject:hover {
+            background: #fecaca;
+            transform: scale(1.1);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            width: 90%;
+            max-width: 600px;
+            border-radius: 0;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #6b7280;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: #f3f4f6;
+            color: #1e293b;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 0;
+            font-size: 14px;
+            color: #1e293b;
+            background: white;
+        }
+
+        .form-group select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 20px;
+            padding-right: 40px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .form-group small {
+            display: block;
+            margin-top: 4px;
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .modal-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 0;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .modal-btn.cancel {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .modal-btn.cancel:hover {
+            background: #e5e7eb;
+        }
+
+        .modal-btn.primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .modal-btn.primary:hover {
+            background: #2563eb;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6b7280;
+        }
+
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 16px;
+            color: #d1d5db;
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <button class="menu-toggle" onclick="toggleSidebar()">
+            ☰
+        </button>
+        <div class="logo-text">
+            <span>Fleet Management</span>
+        </div>
+        <div></div>
+    </div>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Sidebar Navigation -->
+    <div id="sidebar-container"></div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="container">
+            <header>
+                <h1>Maintenance Management</h1>
+                <button class="btn-primary" onclick="showScheduleModal()">+ Schedule Maintenance</button>
+            </header>
+
+            <!-- Filters and Tabs -->
+            <div class="filters">
+                <div class="tabs">
+                    <div class="tab-item active" onclick="filterByTab('pending')">Pending Requests <span id="pendingCount" class="count-badge">0</span></div>
+                    <div class="tab-item" onclick="filterByTab('upcoming')">Upcoming</div>
+                    <div class="tab-item" onclick="filterByTab('completed')">Completed</div>
+                    <div class="tab-item" onclick="filterByTab('overdue')">Overdue</div>
+                    <div class="tab-item" onclick="filterByTab('all')">All</div>
+                </div>
+            </div>
+
+            <!-- Maintenance Table -->
+            <div class="maintenance-card">
+                <table class="maintenance-table">
+                    <thead>
+                        <tr>
+                            <th>Vehicle</th>
+                            <th>Service Type</th>
+                            <th>Description</th>
+                            <th>Priority</th>
+                            <th>Requested By</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="maintenanceGrid">
+                        <!-- Maintenance items will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Schedule Maintenance Modal -->
+    <div id="scheduleModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Schedule Maintenance</h2>
+                <button class="modal-close" onclick="closeScheduleModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="scheduleForm">
+                    <div class="form-group">
+                        <label>Vehicle *</label>
+                        <select id="vehicleId" onchange="fillOdometer()" required>
+                            <option value="">Select vehicle</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Service Type *</label>
+                        <select id="serviceType" required>
+                            <option value="">Select service type</option>
+                            <option value="Oil Change">Oil Change</option>
+                            <option value="Tire Rotation">Tire Rotation</option>
+                            <option value="Brake Inspection">Brake Inspection</option>
+                            <option value="Engine Service">Engine Service</option>
+                            <option value="Transmission Service">Transmission Service</option>
+                            <option value="General Inspection">General Inspection</option>
+                            <option value="Repair">Repair</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Priority *</label>
+                        <select id="priority" required>
+                            <option value="high">High (Critical)</option>
+                            <option value="medium" selected>Medium (Normal)</option>
+                            <option value="low">Low (Routine)</option>
+                        </select>
+                        <small>High priority tasks are scheduled first</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Scheduled Date *</label>
+                        <input type="date" id="scheduledDate" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Current Odometer (km) *</label>
+                        <input type="number" id="currentOdometer" required placeholder="e.g., 45000" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Notes</label>
+                        <textarea id="notes" rows="3" placeholder="Any additional details..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn cancel" onclick="closeScheduleModal()">Cancel</button>
+                <button class="modal-btn primary" onclick="scheduleMaintenance()">Schedule</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Complete Maintenance Modal -->
+    <div id="completeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Complete Maintenance</h2>
+                <button class="modal-close" onclick="closeCompleteModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="completeForm">
+                    <input type="hidden" id="maintenanceId">
+                    
+                    <div class="form-group">
+                        <label>Actual Cost (PKR) *</label>
+                        <input type="number" id="actualCost" required placeholder="e.g., 5500">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Service Provider *</label>
+                        <input type="text" id="serviceProvider" required placeholder="e.g., ABC Auto Services">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Completion Notes</label>
+                        <textarea id="completionNotes" rows="3" placeholder="Details of work performed..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn cancel" onclick="closeCompleteModal()">Cancel</button>
+                <button class="modal-btn primary" onclick="completeMaintenance()">Mark Complete</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '/api';
+        let allMaintenance = [];
+        let allVehicles = [];
+        let currentTab = 'upcoming';
+
+        async function loadVehicles() {
+            try {
+                const res = await fetch(`${API_URL}/vehicles`);
+                const data = await res.json();
+                allVehicles = data.data;
+                
+                const select = document.getElementById('vehicleId');
+                select.innerHTML = '<option value="">Select vehicle</option>' +
+                    allVehicles.map(v => `<option value="${v.id}">${v.name} (${v.registration})</option>`).join('');
+                
+                // Check if there's a preselected vehicle from localStorage
+                const preselectedVehicle = localStorage.getItem('preselectedVehicle');
+                if (preselectedVehicle) {
+                    select.value = preselectedVehicle;
+                    fillOdometer();
+                    showScheduleModal();
+                    localStorage.removeItem('preselectedVehicle');
+                }
+            } catch (error) {
+                console.error('Error loading vehicles:', error);
+            }
+        }
+
+        async function loadMaintenance() {
+            try {
+                console.log('Loading maintenance records...');
+                const res = await fetch(`${API_URL}/maintenance`);
+                const data = await res.json();
+                console.log('Maintenance data:', data);
+                
+                if (data.success) {
+                    allMaintenance = data.maintenance;
+                    console.log('Total maintenance records:', allMaintenance.length);
+                    updatePendingCount();
+                    filterByTab(currentTab);
+                } else {
+                    console.error('API returned success:false');
+                    displayMaintenance([]);
+                }
+            } catch (error) {
+                console.error('Error loading maintenance:', error);
+                displayMaintenance([]);
+            }
+        }
+
+        function updatePendingCount() {
+            const pendingCount = allMaintenance.filter(m => m.status && m.status.toLowerCase() === 'pending').length;
+            const badge = document.getElementById('pendingCount');
+            if (badge) {
+                badge.textContent = pendingCount;
+            }
+        }
+
+        async function updateMaintenanceStatus(maintenanceId, newStatus) {
+            try {
+                const confirmMsg = newStatus === 'APPROVED' 
+                    ? 'Are you sure you want to approve this maintenance request?' 
+                    : 'Are you sure you want to reject this maintenance request?';
+                
+                if (!confirm(confirmMsg)) {
+                    return;
+                }
+
+                const res = await fetch(`${API_URL}/maintenance/${maintenanceId}/status`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: newStatus })
+                });
+
+                const data = await res.json();
+                
+                if (data.success) {
+                    showAlert(`Maintenance request ${newStatus.toLowerCase()} successfully!`, 'success');
+                    await loadMaintenance();
+                } else {
+                    showAlert(data.error || 'Failed to update maintenance status', 'error');
+                }
+            } catch (error) {
+                console.error('Error updating maintenance status:', error);
+                showAlert('Failed to update maintenance status', 'error');
+            }
+        }
+
+        function filterByTab(tab) {
+            currentTab = tab;
+            console.log('Filtering by tab:', tab);
+            
+            // Remove active class from all tabs
+            const tabItems = document.querySelectorAll('.tab-item');
+            tabItems.forEach(item => item.classList.remove('active'));
+            
+            // Add active class to the correct tab
+            if (window.event && window.event.target && window.event.target.classList.contains('tab-item')) {
+                window.event.target.classList.add('active');
+            } else {
+                // Find and activate the correct tab by index
+                const tabIndex = tab === 'pending' ? 0 : tab === 'upcoming' ? 1 : tab === 'completed' ? 2 : tab === 'overdue' ? 3 : 4;
+                if (tabItems[tabIndex]) {
+                    tabItems[tabIndex].classList.add('active');
+                }
+            }
+            
+            let filtered = allMaintenance;
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            if (tab === 'pending') {
+                filtered = allMaintenance.filter(m => m.status && m.status.toLowerCase() === 'pending');
+            } else if (tab === 'upcoming') {
+                filtered = allMaintenance.filter(m => {
+                    const scheduledDate = new Date(m.scheduled_date);
+                    const status = m.status ? m.status.toLowerCase() : '';
+                    return (status === 'approved' || status === 'in_progress') && scheduledDate >= today;
+                });
+            } else if (tab === 'completed') {
+                filtered = allMaintenance.filter(m => m.status && m.status.toLowerCase() === 'completed');
+            } else if (tab === 'overdue') {
+                filtered = allMaintenance.filter(m => {
+                    const scheduledDate = new Date(m.scheduled_date);
+                    const status = m.status ? m.status.toLowerCase() : '';
+                    return (status === 'approved' || status === 'in_progress') && scheduledDate < today;
+                });
+            }
+            
+            displayMaintenance(filtered);
+        }
+
+        function displayMaintenance(maintenance) {
+            console.log('Displaying maintenance records:', maintenance.length);
+            const grid = document.getElementById('maintenanceGrid');
+            
+            if (maintenance.length === 0) {
+                grid.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 60px 20px; color: #6b7280;">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 64px; height: 64px; margin: 0 auto 16px; color: #d1d5db;">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            <p>No maintenance records found</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            grid.innerHTML = maintenance.map(m => {
+                const scheduledDate = new Date(m.scheduled_date);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                let statusClass = m.status ? m.status.toLowerCase() : 'pending';
+                let statusText = m.status ? m.status.replace('_', ' ') : 'Pending';
+                
+                // Determine actions based on status
+                let actions = '';
+                if (statusClass === 'pending') {
+                    actions = `
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <button class="icon-btn approve" onclick="updateMaintenanceStatus('${m.maintenance_id}', 'APPROVED')" title="Approve">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 16px; height: 16px;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                                </svg>
+                            </button>
+                            <button class="icon-btn reject" onclick="updateMaintenanceStatus('${m.maintenance_id}', 'REJECTED')" title="Reject">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 16px; height: 16px;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                    `;
+                } else if (statusClass === 'approved' || statusClass === 'in_progress') {
+                    actions = `<button class="action-btn complete" onclick="showCompleteModal('${m.maintenance_id}')">Complete</button>`;
+                } else if (statusClass === 'completed') {
+                    actions = `<button class="action-btn" onclick="viewDetails('${m.maintenance_id}')">View Details</button>`;
+                } else if (statusClass === 'rejected') {
+                    actions = `<span style="color: #6b7280; font-size: 13px;">Rejected</span>`;
+                } else {
+                    actions = `<span style="color: #6b7280; font-size: 13px;">-</span>`;
+                }
+                
+                const priorityColors = {
+                    high: 'background: #fee2e2; color: #991b1b;',
+                    medium: 'background: #fef3c7; color: #92400e;',
+                    low: 'background: #dbeafe; color: #1e40af;'
+                };
+                
+                const priority = m.priority ? m.priority.toLowerCase() : 'medium';
+                
+                return `
+                    <tr>
+                        <td>
+                            <div class="maintenance-info">
+                                <div class="maintenance-icon" style="background: #dbeafe; color: #3b82f6;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 20px; height: 20px;">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <strong>${m.vehicle_name || 'Unknown Vehicle'}</strong><br>
+                                    <small style="color: #6b7280;">${m.registration || ''}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${m.service_type || m.maintenance_type || '-'}</td>
+                        <td><small style="color: #6b7280;">${m.notes || m.description || '-'}</small></td>
+                        <td>
+                            <span class="status-badge" style="padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 500; ${priorityColors[priority] || priorityColors.medium}">
+                                ${(m.priority || 'MEDIUM').toUpperCase()}
+                            </span>
+                        </td>
+                        <td><small style="color: #6b7280;">${m.requested_by || 'Admin'}</small></td>
+                        <td>${new Date(m.scheduled_date).toLocaleDateString()}</td>
+                        <td>
+                            <span class="status-badge status-${statusClass}">${statusText.toUpperCase()}</span>
+                        </td>
+                        <td>${actions}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function fillOdometer() {
+            const vehicleId = document.getElementById('vehicleId').value;
+            if (!vehicleId) {
+                document.getElementById('currentOdometer').value = '';
+                return;
+            }
+            
+            const vehicle = allVehicles.find(v => v.id === vehicleId);
+            if (vehicle) {
+                document.getElementById('currentOdometer').value = vehicle.km || 0;
+            }
+        }
+
+        function showScheduleModal() {
+            document.getElementById('scheduleModal').classList.add('active');
+            document.getElementById('scheduledDate').min = new Date().toISOString().split('T')[0];
+        }
+
+        function closeScheduleModal() {
+            document.getElementById('scheduleModal').classList.remove('active');
+            document.getElementById('scheduleForm').reset();
+        }
+
+        async function scheduleMaintenance() {
+            const maintenanceData = {
+                vehicle_id: document.getElementById('vehicleId').value,
+                service_type: document.getElementById('serviceType').value,
+                priority: document.getElementById('priority').value,
+                scheduled_date: document.getElementById('scheduledDate').value,
+                current_odometer: parseInt(document.getElementById('currentOdometer').value),
+                notes: document.getElementById('notes').value
+            };
+            
+            if (!maintenanceData.vehicle_id || !maintenanceData.service_type || !maintenanceData.scheduled_date || !maintenanceData.current_odometer) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            try {
+                const res = await fetch(`${API_URL}/maintenance`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(maintenanceData)
+                });
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    alert('Maintenance scheduled successfully!');
+                    closeScheduleModal();
+                    loadMaintenance();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error scheduling maintenance:', error);
+                alert('Failed to schedule maintenance');
+            }
+        }
+
+        function showCompleteModal(maintenanceId) {
+            document.getElementById('maintenanceId').value = maintenanceId;
+            document.getElementById('completeModal').classList.add('active');
+        }
+
+        function closeCompleteModal() {
+            document.getElementById('completeModal').classList.remove('active');
+            document.getElementById('completeForm').reset();
+        }
+
+        async function completeMaintenance() {
+            const maintenanceId = document.getElementById('maintenanceId').value;
+            const completionData = {
+                actual_cost: parseInt(document.getElementById('actualCost').value),
+                service_provider: document.getElementById('serviceProvider').value,
+                completion_notes: document.getElementById('completionNotes').value
+            };
+            
+            if (!completionData.actual_cost || !completionData.service_provider) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            try {
+                const res = await fetch(`${API_URL}/maintenance/${maintenanceId}/complete`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(completionData)
+                });
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    alert('Maintenance marked as complete!');
+                    closeCompleteModal();
+                    loadMaintenance();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error completing maintenance:', error);
+                alert('Failed to complete maintenance');
+            }
+        }
+
+        function viewDetails(maintenanceId) {
+            const maintenance = allMaintenance.find(m => m.maintenance_id === maintenanceId);
+            if (maintenance) {
+                const details = `
+Maintenance ID: ${maintenance.maintenance_id}
+Vehicle: ${maintenance.vehicle_name}
+Service Type: ${maintenance.service_type}
+Priority: ${maintenance.priority.toUpperCase()}
+Scheduled: ${new Date(maintenance.scheduled_date).toLocaleDateString()}
+Status: ${maintenance.status.toUpperCase()}
+Odometer: ${maintenance.current_odometer.toLocaleString()} km
+Estimated Cost: PKR ${(maintenance.estimated_cost || 0).toLocaleString()}
+Actual Cost: PKR ${(maintenance.actual_cost || 0).toLocaleString()}
+Service Provider: ${maintenance.service_provider || 'N/A'}
+Notes: ${maintenance.notes || 'No notes'}
+Completion Notes: ${maintenance.completion_notes || 'N/A'}
+                `;
+                alert(details);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadVehicles();
+            loadMaintenance();
+        });
+    </script>
+</body>
+</html>

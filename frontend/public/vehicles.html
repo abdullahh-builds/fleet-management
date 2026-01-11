@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicles - Fleet Management</title>
+    <script>
+        // Load sidebar component
+        fetch('/components/sidebar.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('sidebar-container').innerHTML = data;
+            });
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+            margin: 0;
+            color: #2c3e50;
+            display: flex;
+        }
+
+        /* Main Content Area */
+        .main-content {
+            margin-left: 240px;
+            flex: 1;
+            padding: 0;
+        }
+
+        .container {
+            padding: 30px 40px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .add-vehicle-btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 0;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        .add-vehicle-btn:hover {
+            background: #2563eb;
+        }
+
+        .filters {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 20px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 20px;
+        }
+
+        .tab-item {
+            padding: 10px 0;
+            color: #6b7280;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .tab-item.active {
+            color: #3b82f6;
+            border-bottom-color: #3b82f6;
+        }
+
+        .tab-item:hover {
+            color: #3b82f6;
+        }
+
+        .vehicles-card {
+            background: white;
+            border-radius: 0;
+            border: 1px solid #e5e7eb;
+            overflow: hidden;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: white;
+            border: 1px solid #d1d5db;
+            padding: 8px 12px;
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .search-box svg {
+            width: 18px;
+            height: 18px;
+            color: #6b7280;
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+
+        .search-box input {
+            border: none;
+            outline: none;
+            flex: 1;
+            font-size: 14px;
+            color: #1e293b;
+        }
+
+        .search-box input::placeholder {
+            color: #9ca3af;
+        }
+
+        .filter-dropdown {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 13px;
+            background: white;
+            cursor: pointer;
+            color: #6b7280;
+        }
+
+        .filter-dropdown:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .filters-right {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .filter-icon-btn {
+            background: transparent;
+            border: none;
+            color: #6b7280;
+            cursor: pointer;
+            padding: 8px;
+            font-size: 18px;
+        }
+
+        .filter-icon-btn:hover {
+            color: #1e293b;
+        }
+
+        .pagination-info {
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        .pagination-btns {
+            display: flex;
+            gap: 4px;
+        }
+
+        .pagination-btn {
+            background: transparent;
+            border: 1px solid #d1d5db;
+            color: #6b7280;
+            cursor: pointer;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .pagination-btn:hover {
+            background: #f9fafb;
+        }
+
+        /* Vehicles Table */
+        .content-area {
+            padding: 0;
+            background: white;
+        }
+
+        .vehicles-table {
+            background: white;
+            border: none;
+            border-radius: 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #fafbfc;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        th {
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #f3f4f6;
+            font-size: 13px;
+            color: #1e293b;
+        }
+
+        tr:hover {
+            background: #f9fafb;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .vehicle-name {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .vehicle-icon {
+            width: 36px;
+            height: 36px;
+            background: #f3f4f6;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-badge::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+
+        .status-badge.active {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .status-badge.active::before {
+            background: #16a34a;
+        }
+
+        .status-badge.assigned {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-badge.assigned::before {
+            background: #1e40af;
+        }
+
+        .status-badge.maintenance {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .status-badge.maintenance::before {
+            background: #dc2626;
+        }
+
+        .status-badge.inactive {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .status-badge.inactive::before {
+            background: #d97706;
+        }
+
+        .group-badge {
+            background: transparent;
+            padding: 0;
+            border-radius: 0;
+            font-size: 13px;
+            color: #6b7280;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .action-btn {
+            background: transparent;
+            border: none;
+            color: #9ca3af;
+            cursor: pointer;
+            padding: 6px;
+            font-size: 16px;
+        }
+
+        .action-btn:hover {
+            color: #6b7280;
+        }
+
+        /* Vehicle Details Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            width: 90%;
+            max-width: 600px;
+            border-radius: 0;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #6b7280;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: #f3f4f6;
+            color: #1e293b;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-size: 13px;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .detail-value {
+            font-size: 14px;
+            color: #1e293b;
+            font-weight: 500;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .modal-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 0;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .modal-btn.cancel {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .modal-btn.cancel:hover {
+            background: #e5e7eb;
+        }
+
+        .modal-btn.primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .modal-btn.primary:hover {
+            background: #2563eb;
+        }
+
+        tbody tr {
+            cursor: pointer;
+        }
+
+        tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        /* Toggle Slider */
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .toggle-label {
+            font-size: 13px;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #d1d5db;
+            transition: .3s;
+            border-radius: 24px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: #3b82f6;
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+
+        .toggle-slider.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <button class="menu-toggle" onclick="toggleSidebar()">
+            ☰
+        </button>
+        <div class="logo-text">
+            <span>Fleet Management</span>
+        </div>
+        <div></div>
+    </div>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Sidebar Navigation -->
+    <div id="sidebar-container"></div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="container">
+            <header>
+                <h1>Vehicles</h1>
+                <div class="header-actions">
+                    <button class="add-vehicle-btn" onclick="window.location.href='/add-vehicle.html'">
+                        <span>+ Add Vehicle</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Filters -->
+            <div class="filters">
+                <div class="tabs">
+                    <div class="tab-item active" onclick="filterByTab('all')">All</div>
+                    <div class="tab-item" onclick="filterByTab('assigned')">Assigned</div>
+                    <div class="tab-item" onclick="filterByTab('unassigned')">Unassigned</div>
+                </div>
+                <div class="search-box">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    <input type="text" placeholder="Search vehicles..." id="searchInput" onkeyup="filterVehicles()">
+                </div>
+            </div>
+
+            <!-- Vehicles Card -->
+            <div class="vehicles-card">
+                <table class="vehicles-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Year</th>
+                            <th>Make</th>
+                            <th>Model</th>
+                            <th>Status</th>
+                            <th>Type</th>
+                            <th>Group</th>
+                            <th>Kilometers</th>
+                            <th>License Plate</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="vehiclesTableBody">
+                        <!-- Vehicles will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '/api';
+
+        // Check authentication - skip redirect for testing
+        const user = JSON.parse(localStorage.getItem('user') || '{"email":"admin@fleet.com","name":"Admin"}');
+
+        function logout() {
+            localStorage.removeItem('user');
+            window.location.href = '/login.html';
+        }
+
+        // Load vehicles
+        async function loadVehicles() {
+            try {
+                const res = await fetch(`${API_URL}/vehicles`);
+                const data = await res.json();
+                
+                allVehicles = data.data;
+                console.log('Loaded vehicles:', allVehicles.length);
+                
+                filterVehicles();
+            } catch (error) {
+                console.error('Error loading vehicles:', error);
+            }
+        }
+
+        async function deleteVehicle(id) {
+            if (!confirm('Are you sure you want to delete this vehicle?')) return;
+            
+            try {
+                await fetch(`${API_URL}/vehicles/${id}`, { method: 'DELETE' });
+                loadVehicles();
+            } catch (error) {
+                console.error('Error deleting vehicle:', error);
+            }
+        }
+
+        async function toggleVehicleStatus(id, currentStatus) {
+            const newStatus = currentStatus === 'INACTIVE' ? 'AVAILABLE' : 'INACTIVE';
+            const action = newStatus === 'INACTIVE' ? 'deactivate' : 'activate';
+            
+            if (!confirm(`Are you sure you want to ${action} this vehicle?`)) return;
+            
+            try {
+                const res = await fetch(`${API_URL}/vehicles/${id}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: newStatus })
+                });
+                
+                if (res.ok) {
+                    loadVehicles();
+                } else {
+                    alert('Failed to update vehicle status');
+                }
+            } catch (error) {
+                console.error('Error updating vehicle status:', error);
+                alert('Error updating vehicle status');
+            }
+        }
+
+        // Search and filter functionality
+        let allVehicles = [];
+        let currentTab = 'all';
+
+        function filterByTab(tab) {
+            currentTab = tab;
+            
+            // Update active tab styling
+            document.querySelectorAll('.tab-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            filterVehicles();
+        }
+
+        function filterVehicles() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            let filtered = allVehicles.filter(v => {
+                const matchesSearch = !searchTerm || 
+                       (v.name && v.name.toLowerCase().includes(searchTerm)) ||
+                       (v.id && v.id.toLowerCase().includes(searchTerm)) ||
+                       (v.make && v.make.toLowerCase().includes(searchTerm)) ||
+                       (v.model && v.model.toLowerCase().includes(searchTerm)) ||
+                       (v.vin && v.vin.toLowerCase().includes(searchTerm)) ||
+                       (v.registration && v.registration.toLowerCase().includes(searchTerm));
+                
+                // Filter by tab
+                if (currentTab === 'assigned') {
+                    return matchesSearch && v.status === 'ASSIGNED';
+                } else if (currentTab === 'unassigned') {
+                    return matchesSearch && (v.status === 'AVAILABLE' || v.status === 'INACTIVE');
+                }
+                
+                // 'all' tab - show all vehicles that match search
+                return matchesSearch;
+            });
+            
+            displayVehicles(filtered);
+        }
+
+        function displayVehicles(vehicles) {
+            const tbody = document.getElementById('vehiclesTableBody');
+            
+            if (vehicles.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="10" style="text-align: center; padding: 40px; color: #6b7280;">No vehicles found</td></tr>';
+                return;
+            }
+            tbody.innerHTML = vehicles.map(v => {
+                let statusClass = 'active';
+                let statusText = 'Available';
+                
+                if (v.status === 'ASSIGNED') {
+                    statusClass = 'assigned';
+                    statusText = 'Assigned';
+                } else if (v.status === 'MAINTENANCE') {
+                    statusClass = 'maintenance';
+                    statusText = 'Maintenance';
+                } else if (v.status === 'INACTIVE') {
+                    statusClass = 'inactive';
+                    statusText = 'Inactive';
+                } else if (v.status === 'AVAILABLE') {
+                    statusClass = 'active';
+                    statusText = 'Available';
+                }
+                
+                // Shorten license plate if too long
+                let licensePlate = v.registration || '-';
+                if (licensePlate.length > 15) {
+                    licensePlate = licensePlate.substring(0, 12) + '...';
+                }
+                
+                return `
+                    <tr onclick="showVehicleDetails('${v.id}')">
+                        <td>
+                            <div class="vehicle-name">
+                                <div class="vehicle-icon">V</div>
+                                <strong>${v.name || v.id}</strong>
+                            </div>
+                        </td>
+                        <td>${v.year}</td>
+                        <td>${v.make}</td>
+                        <td>${v.model}</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        <td>${v.type}</td>
+                        <td><span class="group-badge">${v.group || '-'}</span></td>
+                        <td>${v.km} km</td>
+                        <td>${v.numberPlate || v.registration || '-'}</td>
+                        <td>
+                            <button class="action-btn" onclick="event.stopPropagation(); deleteVehicle('${v.id}')">X</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Show vehicle details modal
+        function showVehicleDetails(vehicleId) {
+            const vehicle = allVehicles.find(v => v.id === vehicleId);
+            if (!vehicle) return;
+
+            let statusClass = 'active';
+            let statusText = 'Available';
+            
+            if (vehicle.status === 'ASSIGNED') {
+                statusClass = 'assigned';
+                statusText = 'Assigned';
+            } else if (vehicle.status === 'MAINTENANCE') {
+                statusClass = 'maintenance';
+                statusText = 'Maintenance';
+            } else if (vehicle.status === 'INACTIVE') {
+                statusClass = 'inactive';
+                statusText = 'Inactive';
+            }
+
+            document.getElementById('modalVehicleName').textContent = vehicle.name || vehicle.id;
+            document.getElementById('modalMake').textContent = vehicle.make || '-';
+            document.getElementById('modalModel').textContent = vehicle.model || '-';
+            document.getElementById('modalYear').textContent = vehicle.year || '-';
+            document.getElementById('modalType').textContent = vehicle.type || '-';
+            document.getElementById('modalRegistration').textContent = vehicle.registration || '-';
+            document.getElementById('modalOdometer').textContent = (vehicle.km || 0).toLocaleString() + ' km';
+            document.getElementById('modalGroup').textContent = vehicle.group || '-';
+            document.getElementById('modalVIN').textContent = vehicle.vin || '-';
+            document.getElementById('modalStatus').innerHTML = `<span class="status-badge ${statusClass}">${statusText}</span>`;
+            
+            // Handle toggle visibility and state
+            const toggleRow = document.getElementById('statusToggleRow');
+            const statusToggle = document.getElementById('statusToggle');
+            const toggleSlider = statusToggle.nextElementSibling;
+            
+            if (vehicle.status === 'AVAILABLE' || vehicle.status === 'INACTIVE') {
+                toggleRow.style.display = 'flex';
+                statusToggle.checked = vehicle.status === 'AVAILABLE';
+                toggleSlider.classList.remove('disabled');
+                statusToggle.disabled = false;
+            } else {
+                // Hide toggle for ASSIGNED or MAINTENANCE vehicles
+                toggleRow.style.display = 'none';
+            }
+            
+            // Store vehicle ID for scheduling and toggling
+            document.getElementById('vehicleDetailsModal').dataset.vehicleId = vehicleId;
+            
+            document.getElementById('vehicleDetailsModal').classList.add('active');
+        }
+
+        function closeVehicleDetails() {
+            document.getElementById('vehicleDetailsModal').classList.remove('active');
+        }
+
+        async function handleStatusToggle() {
+            const vehicleId = document.getElementById('vehicleDetailsModal').dataset.vehicleId;
+            const statusToggle = document.getElementById('statusToggle');
+            const newStatus = statusToggle.checked ? 'AVAILABLE' : 'INACTIVE';
+            
+            try {
+                const res = await fetch(`${API_URL}/vehicles/${vehicleId}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: newStatus })
+                });
+                
+                if (res.ok) {
+                    // Update the status badge in modal
+                    const statusClass = newStatus === 'AVAILABLE' ? 'active' : 'inactive';
+                    const statusText = newStatus === 'Available' ? 'Available' : 'Inactive';
+                    document.getElementById('modalStatus').innerHTML = `<span class="status-badge ${statusClass}">${statusText}</span>`;
+                    
+                    // Reload vehicles to update table
+                    loadVehicles();
+                } else {
+                    alert('Failed to update vehicle status');
+                    // Revert toggle
+                    statusToggle.checked = !statusToggle.checked;
+                }
+            } catch (error) {
+                console.error('Error updating vehicle status:', error);
+                alert('Error updating vehicle status');
+                // Revert toggle
+                statusToggle.checked = !statusToggle.checked;
+            }
+        }
+
+        function scheduleMaintenanceFromVehicle() {
+            const vehicleId = document.getElementById('vehicleDetailsModal').dataset.vehicleId;
+            const vehicle = allVehicles.find(v => v.id === vehicleId);
+            
+            if (!vehicle) return;
+            
+            // Redirect to maintenance page with vehicle pre-selected
+            localStorage.setItem('preselectedVehicle', vehicleId);
+            window.location.href = '/maintenance.html';
+        }
+
+        // Load vehicles on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadVehicles();
+        });
+    </script>
+
+    <!-- Vehicle Details Modal -->
+    <div id="vehicleDetailsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalVehicleName">Vehicle Details</h2>
+                <button class="modal-close" onclick="closeVehicleDetails()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="detail-row">
+                    <span class="detail-label">Make</span>
+                    <span class="detail-value" id="modalMake">-</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Model</span>
+                    <span class="detail-value" id="modalModel">-</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Year</span>
+                    <span class="detail-value" id="modalYear">-</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Type</span>
+                    <span class="detail-value" id="modalType">-</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Registration</span>
+                    <span class="detail-value" id="modalRegistration">-</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Odometer</span>
+                    <span class="detail-value" id="modalOdometer">-</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Group</span>
+                    <span class="detail-value" id="modalGroup">-</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">VIN</span>
+                    <span class="detail-value" id="modalVIN">-</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Status</span>
+                    <span class="detail-value" id="modalStatus">-</span>
+                </div>
+                <div class="detail-row" id="statusToggleRow">
+                    <span class="detail-label">Active Status</span>
+                    <div class="toggle-container">
+                        <span class="toggle-label" id="toggleLabel">Inactive</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="statusToggle" onchange="handleStatusToggle()">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="toggle-label">Active</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn cancel" onclick="closeVehicleDetails()">Close</button>
+                <button class="modal-btn primary" onclick="scheduleMaintenanceFromVehicle()">Schedule Maintenance</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

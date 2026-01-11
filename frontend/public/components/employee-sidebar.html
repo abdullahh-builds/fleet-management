@@ -1,0 +1,77 @@
+<div class="sidebar">
+    <div class="sidebar-header" style="text-align:center; position:relative; padding-top:2px;">
+        <img src="/assets/logo.svg" alt="Fleet Manager Logo" class="sidebar-logo">
+        <h2 class="sidebar-title">Fleet Manager</h2>
+        <p>Employee Portal</p>
+    </div>
+    <ul class="nav-menu">
+        <a href="/employee-dashboard.html" class="nav-item" data-page="dashboard">
+            <span class="nav-icon">■</span>
+            <span>Dashboard</span>
+        </a>
+        <a href="/employee-trips.html" class="nav-item" data-page="trips">
+            <span class="nav-icon">▶</span>
+            <span>My Trips</span>
+        </a>
+        <a href="/employee-fuel-new.html" class="nav-item" data-page="fuel">
+            <span class="nav-icon">▶</span>
+            <span>Fuel Requests</span>
+        </a>
+        <a href="/employee-vehicle.html" class="nav-item" data-page="vehicle">
+            <span class="nav-icon">▶</span>
+            <span>My Vehicle</span>
+        </a>
+    </ul>
+</div>
+
+<style>
+    .sidebar-header .sidebar-logo {
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        transform: translate(-50%, -60px); /* nudge image up to hide SVG top whitespace */
+        height: 220px; /* match login visual size */
+        width: auto;
+        z-index: 3;
+        display: block;
+        margin-bottom: 0px;
+    }
+
+    .sidebar-header .sidebar-title {
+        color: rgba(255,255,255,0.92);
+        font-size: 16px;
+        font-weight: 600;
+        margin: 0 0 0px 0;
+        margin-top: 80px; /* push title below large logo */
+    }
+
+    @media (max-width: 768px) {
+        .sidebar-header { padding-top: 90px; }
+        .sidebar-header .sidebar-logo { height: 140px; top: 8px; }
+        .sidebar-header .sidebar-title { margin-top: 80px; }
+    }
+
+    @media (max-width: 420px) {
+        .sidebar-header { padding-top: 70px; }
+        .sidebar-header .sidebar-logo { height: 110px; top: 6px; }
+        .sidebar-header .sidebar-title { margin-top: 60px; font-size: 14px; }
+    }
+</style>
+
+<script>
+    // Highlight active page
+    const currentPage = window.location.pathname.split('/').pop().replace('.html', '');
+    const pageMap = {
+        'employee-dashboard': 'dashboard',
+        'employee-trips': 'trips',
+        'employee-fuel': 'fuel',
+        'employee-fuel-new': 'fuel',
+        'employee-vehicle': 'vehicle'
+    };
+    
+    const activePage = pageMap[currentPage] || 'dashboard';
+    const activeItem = document.querySelector(`.nav-item[data-page="${activePage}"]`);
+    if (activeItem) {
+        activeItem.classList.add('active');
+    }
+</script>

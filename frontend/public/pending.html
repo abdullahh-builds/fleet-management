@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pending Approval - Fleet Management System</title>
+    <link rel="stylesheet" href="css/auth-styles.css">
+</head>
+<body>
+    <div class="auth-wrapper">
+        <div class="pending-container">
+            <div class="icon-wrapper">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                </svg>
+            </div>
+
+            <h1>Account Pending Approval</h1>
+            <p id="userName">Hello!</p>
+            <p>Your account is currently pending approval from an administrator. You will receive access once your account has been reviewed.</p>
+            
+            <div class="status-box">
+                <h3>What happens next?</h3>
+                <p>An administrator will review your account within 1-2 business days. Once approved, you can log in with your credentials and access the system.</p>
+            </div>
+
+            <button onclick="backToLogin()" class="btn btn-primary">Back to Login</button>
+        </div>
+    </div>
+
+    <script>
+        // Guard: redirect based on role/status
+        (function guard() {
+            const isAuthenticated = sessionStorage.getItem('isAuthenticated');
+            const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+
+            if (isAuthenticated !== 'true' || !user.email) {
+                window.location.href = '/login.html';
+                return;
+            }
+
+            if (user.role === 'ADMIN') {
+                window.location.href = '/index.html';
+                return;
+            }
+
+            if (user.status === 'ACTIVE') {
+                window.location.href = '/employee-dashboard.html';
+                return;
+            }
+
+            // If pending, show name if available
+            if (user.name) {
+                document.getElementById('userName').textContent = `Hello, ${user.name}!`;
+            }
+        })();
+
+        // Function to handle logout and redirect to login
+        function backToLogin() {
+            sessionStorage.clear();
+            window.location.href = '/login.html';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+[
+  {
+    "userId": "U001",
+    "email": "admin@fleet.com",
+    "password": "admin123",
+    "name": "System Administrator",
+    "role": "ADMIN",
+    "status": "ACTIVE"
+  },
+  {
+    "userId": "U002",
+    "email": "4abdullah.haroon@gmail.com",
+    "password": "haroon123",
+    "name": "Abdullah",
+    "role": "EMPLOYEE",
+    "status": "ACTIVE"
+  }
+]

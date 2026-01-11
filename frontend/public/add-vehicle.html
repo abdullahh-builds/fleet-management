@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Vehicle - Fleet Management System</title>
+    <link rel="stylesheet" href="/css/mobile-responsive.css">
+    <script>
+        // Load sidebar component
+        fetch('/components/sidebar.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('sidebar-container').innerHTML = data;
+                setupMobileSidebar();
+            });
+
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar') || document.querySelector('#sidebar-container > div');
+            const overlay = document.querySelector('.sidebar-overlay');
+            if (sidebar && overlay) {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            }
+        }
+
+        function setupMobileSidebar() {
+            if (window.innerWidth <= 768) {
+                const sidebar = document.querySelector('.sidebar') || document.querySelector('#sidebar-container > div');
+                if (sidebar) {
+                    const links = sidebar.querySelectorAll('a');
+                    links.forEach(link => {
+                        link.addEventListener('click', () => {
+                            const sidebarEl = document.querySelector('.sidebar') || document.querySelector('#sidebar-container > div');
+                            const overlay = document.querySelector('.sidebar-overlay');
+                            if (sidebarEl && overlay) {
+                                sidebarEl.classList.remove('active');
+                                overlay.classList.remove('active');
+                            }
+                        });
+                    });
+                }
+            }
+        }
+
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) {
+                const sidebar = document.querySelector('.sidebar') || document.querySelector('#sidebar-container > div');
+                const overlay = document.querySelector('.sidebar-overlay');
+                if (sidebar && overlay) {
+                    sidebar.classList.remove('active');
+                    overlay.classList.remove('active');
+                }
+            }
+        });
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .main-content {
+            margin-left: 240px;
+            flex: 1;
+            padding: 0;
+        }
+
+        .container {
+            padding: 30px 40px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .back-link {
+            color: #6b7280;
+            text-decoration: none;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .back-link:hover {
+            color: #3b82f6;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 0;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-cancel {
+            background: white;
+            color: #6b7280;
+            border: 1px solid #d1d5db;
+        }
+
+        .btn-cancel:hover {
+            background: #f9fafb;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+
+        .content-wrapper {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+        }
+
+        .form-container {
+            flex: 1;
+            max-width: 900px;
+            background: white;
+            border-radius: 0;
+            border: 1px solid #e5e7eb;
+            padding: 30px;
+        }
+
+        .form-section {
+            margin-bottom: 35px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-row.single {
+            grid-template-columns: 1fr;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-size: 13px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        label .required {
+            color: #ef4444;
+        }
+
+        input, select {
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 0;
+            font-size: 14px;
+            color: #1e293b;
+            transition: border-color 0.2s;
+            background: white;
+            cursor: pointer;
+        }
+
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 40px;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        input::placeholder {
+            color: #9ca3af;
+        }
+
+        select option {
+            padding: 10px;
+            font-size: 14px;
+        }
+
+        .helper-text {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 6px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <button class="menu-toggle" onclick="toggleSidebar()">
+            ☰
+        </button>
+        <div class="logo-text">
+            <span>Fleet Management</span>
+        </div>
+        <div></div>
+    </div>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Sidebar Navigation -->
+    <div id="sidebar-container"></div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="container">
+            <header>
+                <div class="header-left">
+                    <a href="/vehicles.html" class="back-link">← Vehicles</a>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-cancel" onclick="window.location.href='/vehicles.html'">Cancel</button>
+                    <button class="btn btn-primary" onclick="saveVehicle()">Save Vehicle</button>
+                </div>
+            </header>
+
+            <div class="content-wrapper">
+                <!-- Form Container -->
+                <div class="form-container">
+                    <form id="vehicleForm">
+                        <!-- Identification Section -->
+                        <div class="form-section">
+                            <h2 class="section-title">Details</h2>
+                            
+                            <div class="form-row single">
+                                <div class="form-group">
+                                    <label>Vehicle Name <span class="required">*</span></label>
+                                    <input type="text" id="vehicleName" name="name" placeholder="e.g. Corolla GLi 2020" required>
+                                    <p class="helper-text">Enter a name to identify this vehicle</p>
+                                </div>
+                            </div>
+
+                            <div class="form-row single">
+                                <div class="form-group">
+                                    <label>VIN/Chassis Number</label>
+                                    <input type="text" id="vin" name="vin" placeholder="Enter VIN or Chassis Number">
+                                    <p class="helper-text">Vehicle Identification Number</p>
+                                </div>
+                            </div>
+
+                            <div class="form-row single">
+                                <div class="form-group">
+                                    <label>Number Plate <span class="required">*</span></label>
+                                    <input type="text" id="numberPlate" name="numberPlate" placeholder="e.g. LED-1234" required>
+                                    <p class="helper-text">Pakistani format: ABC-1234</p>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Type <span class="required">*</span></label>
+                                    <select id="type" name="type" required>
+                                        <option value="Car">Car</option>
+                                        <option value="Truck">Truck</option>
+                                        <option value="Van">Van</option>
+                                        <option value="SUV">SUV</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Status</label>
+                                    <select id="status" name="status">
+                                        <option value="AVAILABLE">Available</option>
+                                        <option value="MAINTENANCE">Under Maintenance</option>
+                                        <option value="INACTIVE">Inactive</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Year <span class="required">*</span></label>
+                                    <input type="number" id="year" name="year" placeholder="e.g. 2020" min="1990" max="2025" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Make <span class="required">*</span></label>
+                                    <select id="make" name="make" required>
+                                        <option value="">Select Make</option>
+                                        <option value="Toyota">Toyota</option>
+                                        <option value="Honda">Honda</option>
+                                        <option value="Suzuki">Suzuki</option>
+                                        <option value="Hyundai">Hyundai</option>
+                                        <option value="Kia">Kia</option>
+                                        <option value="Isuzu">Isuzu</option>
+                                        <option value="Hino">Hino</option>
+                                        <option value="FAW">FAW</option>
+                                        <option value="MG">MG</option>
+                                        <option value="Changan">Changan</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Model <span class="required">*</span></label>
+                                    <input type="text" id="model" name="model" placeholder="e.g. Corolla GLi" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Group</label>
+                                    <select id="group" name="group">
+                                        <option value="Lahore Fleet">Lahore Fleet</option>
+                                        <option value="Karachi Fleet">Karachi Fleet</option>
+                                        <option value="Islamabad Fleet">Islamabad Fleet</option>
+                                        <option value="Faisalabad Fleet">Faisalabad Fleet</option>
+                                        <option value="Rawalpindi Fleet">Rawalpindi Fleet</option>
+                                        <option value="Multan Fleet">Multan Fleet</option>
+                                        <option value="Peshawar Fleet">Peshawar Fleet</option>
+                                        <option value="Quetta Fleet">Quetta Fleet</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Kilometers</label>
+                                    <input type="number" id="km" name="km" placeholder="e.g. 45000" min="0" value="0">
+                                    <p class="helper-text">Current odometer reading</p>
+                                </div>
+                                <div class="form-group">
+                                    <label>Days in Service</label>
+                                    <input type="number" id="daysService" name="daysService" placeholder="e.g. 120" min="0" value="0">
+                                    <p class="helper-text">Total days in operation</p>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '/api';
+
+        async function saveVehicle() {
+            const form = document.getElementById('vehicleForm');
+            
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const vehicleData = {
+                name: document.getElementById('vehicleName').value,
+                vin: document.getElementById('vin').value,
+                registration: document.getElementById('numberPlate').value,
+                numberPlate: document.getElementById('numberPlate').value,
+                type: document.getElementById('type').value,
+                status: document.getElementById('status').value,
+                year: parseInt(document.getElementById('year').value),
+                make: document.getElementById('make').value,
+                model: document.getElementById('model').value,
+                group: document.getElementById('group').value,
+                km: parseInt(document.getElementById('km').value) || 0,
+                daysService: parseInt(document.getElementById('daysService').value) || 0
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/vehicles`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(vehicleData)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Vehicle added successfully!');
+                    window.location.href = '/vehicles.html';
+                } else {
+                    alert('Error adding vehicle: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error adding vehicle. Please try again.');
+            }
+        }
+    </script>
+</body>
+</html>

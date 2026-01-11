@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fuel Requests - Fleet Management</title>
+    <link rel="stylesheet" href="/css/mobile-responsive.css">
+    <script>
+        fetch('/components/employee-sidebar.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('sidebar-container').innerHTML = data;
+                setupMobileSidebar();
+            });
+
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar') || document.querySelector('#sidebar-container > div');
+            const overlay = document.querySelector('.sidebar-overlay');
+            if (sidebar && overlay) {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            }
+        }
+
+        function setupMobileSidebar() {
+            if (window.innerWidth <= 768) {
+                const sidebar = document.querySelector('.sidebar') || document.querySelector('#sidebar-container > div');
+                if (sidebar) {
+                    const links = sidebar.querySelectorAll('a');
+                    links.forEach(link => {
+                        link.addEventListener('click', () => {
+                            const sidebarEl = document.querySelector('.sidebar') || document.querySelector('#sidebar-container > div');
+                            const overlay = document.querySelector('.sidebar-overlay');
+                            if (sidebarEl && overlay) {
+                                sidebarEl.classList.remove('active');
+                                overlay.classList.remove('active');
+                            }
+                        });
+                    });
+                }
+            }
+        }
+
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) {
+                const sidebar = document.querySelector('.sidebar') || document.querySelector('#sidebar-container > div');
+                const overlay = document.querySelector('.sidebar-overlay');
+                if (sidebar && overlay) {
+                    sidebar.classList.remove('active');
+                    overlay.classList.remove('active');
+                }
+            }
+        });
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 240px;
+            background: #1e3a5f;
+            min-height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            padding: 20px 0;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+
+        .sidebar-header h2 {
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .sidebar-header p {
+            color: rgba(255,255,255,0.7);
+            font-size: 12px;
+            margin: 5px 0 0 0;
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .nav-item {
+            padding: 14px 24px;
+            color: rgba(255,255,255,0.8);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            border-left: 3px solid transparent;
+            text-decoration: none;
+        }
+
+        .nav-item:hover {
+            background: rgba(255,255,255,0.05);
+            color: white;
+        }
+
+        .nav-item.active {
+            background: rgba(59, 130, 246, 0.15);
+            color: white;
+            border-left-color: #3b82f6;
+        }
+
+        .main-content {
+            margin-left: 240px;
+            flex: 1;
+            padding: 30px 40px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .card-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #f9fafb;
+        }
+
+        th {
+            padding: 12px 20px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 16px 20px;
+            font-size: 14px;
+            color: #1e293b;
+            border-top: 1px solid #f3f4f6;
+        }
+
+        tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .badge-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-approved {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-completed {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-rejected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 24px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: #94a3b8;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            letter-spacing: 0.3px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input {
+            background: white;
+        }
+
+        .form-group input::placeholder {
+            color: #9ca3af;
+            font-size: 14px;
+        }
+
+        .form-group select {
+            background: white;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%236b7280' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 40px;
+        }
+
+        .form-group select:hover {
+            border-color: #3b82f6;
+            background-color: #f0f9ff;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 4px rgba(59,130,246,0.15);
+            background-color: #fff;
+        }
+
+        .form-group input[readonly] {
+            background: #f0f9ff;
+            color: #0369a1;
+            border: 2px solid #bae6fd;
+            cursor: not-allowed;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .btn-cancel {
+            background: #f3f4f6;
+            color: #4b5563;
+        }
+
+        .btn-upload {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-upload:hover {
+            background: #2563eb;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input-wrapper input[type="file"] {
+            display: none;
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 10px 12px;
+            border: 2px dashed #d1d5db;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .file-input-label:hover {
+            border-color: #3b82f6;
+            background: #f0f9ff;
+        }
+
+        .file-preview {
+            margin-top: 10px;
+            max-width: 100%;
+            border-radius: 8px;
+        }
+
+        .empty-state {
+            padding: 60px 20px;
+            text-align: center;
+            color: #94a3b8;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <button class="menu-toggle" onclick="toggleSidebar()">
+            ☰
+        </button>
+        <div class="logo-text">
+            <span>Fleet Management</span>
+        </div>
+        <div></div>
+    </div>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <div id="sidebar-container"></div>
+
+    <div class="main-content">
+        <header>
+            <h1>Fuel Requests</h1>
+            <button class="btn btn-primary" onclick="openRequestModal()">+ Request Fuel</button>
+        </header>
+
+        <div class="card">
+            <div class="card-header">
+                <h2>My Fuel Requests</h2>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Fuel Type</th>
+                        <th>Liters</th>
+                        <th>Cost</th>
+                        <th>Station</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="fuelTableBody">
+                    <tr><td colspan="7" class="empty-state">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Request Fuel Modal -->
+    <div id="requestModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Request Fuel</h2>
+                <button class="modal-close" onclick="closeRequestModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="requestForm">
+                    <input type="hidden" id="vehicleId">
+                    <input type="hidden" id="vehicleDisplay">
+
+                    <div class="form-group">
+                        <label>Fuel Type *</label>
+                        <select id="fuelType" required>
+                            <option value="">Select fuel type</option>
+                            <option value="Petrol">Petrol</option>
+                            <option value="Diesel">Diesel</option>
+                            <option value="CNG">CNG</option>
+                            <option value="Electric">Electric</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Quantity (Liters) *</label>
+                        <input type="number" id="liters" step="0.01" min="0" placeholder="Enter quantity in liters" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Cost per Liter (Rs) *</label>
+                        <input type="number" id="costPerLiter" step="0.01" min="0" placeholder="Enter cost per liter" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Total Cost (Rs)</label>
+                        <input type="text" id="totalCost" readonly style="background: #f0f9ff; font-weight: 600; color: #0369a1; font-size: 16px;">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Fuel Station *</label>
+                        <input type="text" id="fuelStation" placeholder="e.g., PSO, Shell, Total" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Location *</label>
+                        <input type="text" id="location" placeholder="e.g., I-8 Markaz, Islamabad" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-cancel" onclick="closeRequestModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="submitRequest()">Submit Request</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload Receipt Modal -->
+    <div id="receiptModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Upload Receipt</h2>
+                <button class="modal-close" onclick="closeReceiptModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="receiptForm">
+                    <input type="hidden" id="fuelIdForReceipt">
+                    
+                    <div class="form-group">
+                        <label>Receipt Image *</label>
+                        <div class="file-input-wrapper">
+                            <input type="file" id="receiptImage" accept="image/*" onchange="previewReceipt(event)">
+                            <label for="receiptImage" class="file-input-label">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; vertical-align: middle; margin-right: 8px;">
+                                    <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M17 8L12 3L7 8" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M12 3V15" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                Click to upload receipt image
+                            </label>
+                        </div>
+                        <img id="receiptPreview" class="file-preview" style="display:none">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Receipt Number</label>
+                        <input type="text" id="receiptNumber" placeholder="RCP-12345">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Additional Notes</label>
+                        <input type="text" id="receiptNotes" placeholder="Any additional details">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-cancel" onclick="closeReceiptModal()">Cancel</button>
+                <button class="btn btn-upload" onclick="submitReceipt()">Complete Request</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '/api';
+        let currentUser = null;
+        let myVehicle = null;
+        let myVehicleName = '';
+
+        // Authentication check
+        function checkAuth() {
+            const isAuthenticated = sessionStorage.getItem('isAuthenticated');
+            const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+
+            if (isAuthenticated !== 'true' || !user.email) {
+                window.location.href = '/login.html';
+                return false;
+            }
+
+            if (user.role !== 'EMPLOYEE') {
+                window.location.href = '/index.html';
+                return false;
+            }
+
+            currentUser = user;
+            return true;
+        }
+
+        if (!checkAuth()) {
+            throw new Error('Authentication required');
+        }
+
+        // Auto-calculate total cost
+        document.getElementById('liters')?.addEventListener('input', calculateTotal);
+        document.getElementById('costPerLiter')?.addEventListener('input', calculateTotal);
+
+        function calculateTotal() {
+            const liters = parseFloat(document.getElementById('liters').value) || 0;
+            const cost = parseFloat(document.getElementById('costPerLiter').value) || 0;
+            document.getElementById('totalCost').value = (liters * cost).toFixed(2);
+        }
+
+        async function loadData() {
+            try {
+                // Get assigned vehicle from user object
+                myVehicle = currentUser.assignedVehicle || currentUser.assigned_vehicle;
+                
+                // If vehicle is assigned, get vehicle details
+                if (myVehicle) {
+                    const vehicleRes = await fetch(`${API_URL}/vehicles/${myVehicle}`);
+                    const vehicleData = await vehicleRes.json();
+                    
+                    if (vehicleData.success && vehicleData.vehicle) {
+                        myVehicleName = `${vehicleData.vehicle.name} (${vehicleData.vehicle.registration})`;
+                    }
+                }
+
+                // Load fuel records
+                await loadFuelRecords();
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function loadFuelRecords() {
+            try {
+                const res = await fetch(`${API_URL}/fuel`);
+                const data = await res.json();
+
+                if (data.success) {
+                    const myRecords = data.records.filter(r => r.driver_id === currentUser.userId);
+                    const tbody = document.getElementById('fuelTableBody');
+                    
+                    if (myRecords.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No fuel requests yet</td></tr>';
+                        return;
+                    }
+
+                    tbody.innerHTML = myRecords.map(r => `
+                        <tr>
+                            <td>${new Date(r.filled_at).toLocaleDateString()}</td>
+                            <td>${r.fuel_type}</td>
+                            <td>${parseFloat(r.quantity_liters).toFixed(2)} L</td>
+                            <td>Rs ${parseFloat(r.total_cost).toFixed(2)}</td>
+                            <td>${r.fuel_station || '-'}</td>
+                            <td><span class="badge badge-${r.status}">${r.status}</span></td>
+                            <td>
+                                ${r.status === 'approved' ? 
+                                    `<button class="action-btn btn-upload" onclick="openReceiptModal('${r.fuel_id}')">Upload Receipt</button>` : 
+                                    '-'}
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function openRequestModal() {
+            if (!myVehicle) {
+                alert('No vehicle assigned. Please contact admin to assign a vehicle to your account.');
+                return;
+            }
+            document.getElementById('vehicleId').value = myVehicle;
+            document.getElementById('vehicleDisplay').value = myVehicleName;
+            document.getElementById('requestModal').classList.add('active');
+        }
+
+        function closeRequestModal() {
+            document.getElementById('requestModal').classList.remove('active');
+            document.getElementById('requestForm').reset();
+        }
+
+        async function submitRequest() {
+            const form = document.getElementById('requestForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const data = {
+                vehicle_id: document.getElementById('vehicleId').value,
+                driver_id: currentUser.userId,
+                fuel_type: document.getElementById('fuelType').value,
+                quantity_liters: parseFloat(document.getElementById('liters').value),
+                cost_per_liter: parseFloat(document.getElementById('costPerLiter').value),
+                fuel_station: document.getElementById('fuelStation').value,
+                location: document.getElementById('location').value
+            };
+
+            try {
+                const res = await fetch(`${API_URL}/fuel`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await res.json();
+                if (result.success) {
+                    alert('Fuel request submitted! Waiting for admin approval.');
+                    closeRequestModal();
+                    loadFuelRecords();
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch (error) {
+                alert('Failed to submit request');
+            }
+        }
+
+        function openReceiptModal(fuelId) {
+            document.getElementById('fuelIdForReceipt').value = fuelId;
+            document.getElementById('receiptModal').classList.add('active');
+        }
+
+        function closeReceiptModal() {
+            document.getElementById('receiptModal').classList.remove('active');
+            document.getElementById('receiptForm').reset();
+            document.getElementById('receiptPreview').style.display = 'none';
+        }
+
+        function previewReceipt(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('receiptPreview');
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        async function submitReceipt() {
+            const fuelId = document.getElementById('fuelIdForReceipt').value;
+            const receiptImage = document.getElementById('receiptImage').files[0];
+            
+            if (!receiptImage) {
+                alert('Please upload a receipt image');
+                return;
+            }
+
+            // Convert image to base64
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const data = {
+                    fuel_id: fuelId,
+                    receipt_image: e.target.result,
+                    receipt_number: document.getElementById('receiptNumber').value,
+                    notes: document.getElementById('receiptNotes').value,
+                    status: 'completed'
+                };
+
+                try {
+                    const res = await fetch(`${API_URL}/fuel/${fuelId}/complete`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+
+                    const result = await res.json();
+                    if (result.success) {
+                        alert('Receipt uploaded successfully!');
+                        closeReceiptModal();
+                        loadFuelRecords();
+                    } else {
+                        alert('Error: ' + result.message);
+                    }
+                } catch (error) {
+                    alert('Failed to upload receipt');
+                }
+            };
+            reader.readAsDataURL(receiptImage);
+        }
+
+        document.addEventListener('DOMContentLoaded', loadData);
+    </script>
+</body>
+</html>

@@ -1,0 +1,154 @@
+<!-- Sidebar Navigation -->
+<div class="sidebar">
+    <div class="sidebar-header" style="text-align:center; position:relative; padding-top:20px; margin-top: 0px;">
+        <img src="/assets/logo.svg" alt="Fleet Manager Logo" class="sidebar-logo">
+        <h2 class="sidebar-title">Fleet Manager</h2>
+        <p>Admin Portal</p>
+    </div>
+    <ul class="nav-menu">
+        <a href="/index.html" class="nav-item" id="nav-dashboard">
+            <span class="nav-icon">■</span>
+            <span>Dashboard</span>
+        </a>
+        <a href="/vehicles.html" class="nav-item" id="nav-vehicles">
+            <span class="nav-icon">▶</span>
+            <span>Vehicles</span>
+        </a>
+        <a href="/drivers.html" class="nav-item" id="nav-drivers">
+            <span class="nav-icon">▶</span>
+            <span>Drivers</span>
+        </a>
+        <a href="/trips.html" class="nav-item" id="nav-trips">
+            <span class="nav-icon">▶</span>
+            <span>Trips</span>
+        </a>
+        <a href="/maintenance.html" class="nav-item" id="nav-maintenance">
+            <span class="nav-icon">▶</span>
+            <span>Maintenance</span>
+        </a>
+        <a href="/admin-fuel-new.html" class="nav-item" id="nav-fuel">
+            <span class="nav-icon">▶</span>
+            <span>Fuel Management</span>
+        </a>
+      
+    </ul>
+</div>
+
+<style>
+    /* Sidebar Navigation */
+    .sidebar {
+        width: 240px;
+        background: #1e3a5f;
+        min-height: 100vh;
+        position: fixed;
+        left: 0;
+        top: 0;
+        padding: 20px 0;
+        box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    }
+
+    .sidebar-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        margin-bottom: 20px;
+    }
+
+    .sidebar-header .sidebar-logo {
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        transform: translate(-50%, -60px); /* nudge image up to hide SVG top whitespace */
+        height: 220px; /* match login visual size */
+        width: auto;
+        z-index: 3;
+        display: block;
+         margin-bottom: 0px;
+    }
+
+    .sidebar-header .sidebar-title {
+        color: rgba(255,255,255,0.92);
+        font-size: 16px;
+        font-weight: 600;
+        margin: 0 0 0px 0;
+        margin-top: 60px; /* push title below large logo */
+    }
+
+    @media (max-width: 768px) {
+        .sidebar-header { padding-top: 90px; }
+        .sidebar-header .sidebar-logo { height: 140px; top: 8px; }
+        .sidebar-header .sidebar-title { margin-top: 80px; }
+    }
+
+    @media (max-width: 420px) {
+        .sidebar-header { padding-top: 70px; }
+        .sidebar-header .sidebar-logo { height: 110px; top: 6px; }
+        .sidebar-header .sidebar-title { margin-top: 60px; font-size: 14px; }
+    }
+
+    .sidebar-header p {
+        color: rgba(255,255,255,0.7);
+        font-size: 12px;
+        margin: 5px 0 0 0;
+    }
+
+    .nav-menu {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .nav-item {
+        padding: 14px 24px;
+        color: rgba(255,255,255,0.8);
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 14px;
+        border-left: 3px solid transparent;
+        text-decoration: none;
+    }
+
+    .nav-item:hover {
+        background: rgba(255,255,255,0.05);
+        color: white;
+    }
+
+    .nav-item.active {
+        background: rgba(59, 130, 246, 0.15);
+        color: white;
+        border-left-color: #3b82f6;
+    }
+
+    .nav-icon {
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+    }
+</style>
+
+<script>
+    // Highlight active menu item based on current page
+    const currentPath = window.location.pathname;
+    if (currentPath.includes('index.html') || currentPath === '/') {
+        document.getElementById('nav-dashboard').classList.add('active');
+    } else if (currentPath.includes('vehicles.html')) {
+        document.getElementById('nav-vehicles').classList.add('active');
+    } else if (currentPath.includes('drivers.html')) {
+        document.getElementById('nav-drivers').classList.add('active');
+    } else if (currentPath.includes('trips.html')) {
+        document.getElementById('nav-trips').classList.add('active');
+    } else if (currentPath.includes('maintenance.html')) {
+        document.getElementById('nav-maintenance').classList.add('active');
+    } else if (currentPath.includes('fuel.html')) {
+        document.getElementById('nav-fuel').classList.add('active');
+    } else if (currentPath.includes('routes.html')) {
+        document.getElementById('nav-routes').classList.add('active');
+    } else if (currentPath.includes('users.html')) {
+        document.getElementById('nav-users').classList.add('active');
+    }
+</script>

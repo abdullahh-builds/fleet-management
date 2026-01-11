@@ -1,0 +1,971 @@
+==================================
+  Fleet Management System v1.0   
+  DSA Implementation Project      
+==================================
+
+--- MODULE 1: HASH TABLE DEMO ---
+Testing O(1) Vehicle Lookup
+
+✅ Vehicle V001 inserted successfully!
+✅ Vehicle V002 inserted successfully!
+✅ Vehicle V003 inserted successfully!
+✅ Vehicle V004 inserted successfully!
+
+========== ALL VEHICLES ==========
+Total Vehicles: 4
+==================================
+
+
+=== Vehicle Information ===
+ID: V001
+Registration: MH-12-AB-1234
+Model: Tata Ace
+Type: Truck
+Year: 2020
+Kilometers: 12000 km
+Days Since Service: 95 days
+Status: AVAILABLE
+Maintenance Priority: 5
+Needs Maintenance: YES
+==========================
+
+
+=== Vehicle Information ===
+ID: V002
+Registration: DL-01-CD-5678
+Model: Mahindra Bolero
+Type: Van
+Year: 2019
+Kilometers: 8500 km
+Days Since Service: 45 days
+Status: AVAILABLE
+Maintenance Priority: 2
+Needs Maintenance: NO
+==========================
+
+
+=== Vehicle Information ===
+ID: V003
+Registration: KA-03-EF-9012
+Model: Maruti Eeco
+Type: Car
+Year: 2021
+Kilometers: 15000 km
+Days Since Service: 120 days
+Status: AVAILABLE
+Maintenance Priority: 7
+Needs Maintenance: YES
+==========================
+
+
+=== Vehicle Information ===
+ID: V004
+Registration: TN-09-GH-3456
+Model: Ashok Leyland
+Type: Truck
+Year: 2018
+Kilometers: 25000 km
+Days Since Service: 150 days
+Status: AVAILABLE
+Maintenance Priority: 10
+Needs Maintenance: YES
+==========================
+
+
+--- TESTING SEARCH (O(1)) ---
+Searching for V003...
+
+=== Vehicle Information ===
+ID: V003
+Registration: KA-03-EF-9012
+Model: Maruti Eeco
+Type: Car
+Year: 2021
+Kilometers: 15000 km
+Days Since Service: 120 days
+Status: AVAILABLE
+Maintenance Priority: 7
+Needs Maintenance: YES
+==========================
+
+Searching for V999 (doesn't exist)...
+❌ Vehicle V999 not found (as expected)
+
+
+=== Hash Table Statistics ===
+Table Size: 100
+Used Slots: 4
+Load Factor: 0.04
+Max Chain Length: 1
+============================
+
+
+--- TESTING DELETE ---
+✅ Vehicle V002 deleted!
+
+After deletion:
+
+=== Hash Table Statistics ===
+Table Size: 100
+Used Slots: 3
+Load Factor: 0.03
+Max Chain Length: 1
+============================
+
+
+✅ Hash Table Module Complete!
+✅ O(1) Insert, Search, Delete implemented!
+
+
+--- MODULE 2: DRIVER QUEUE DEMO ---
+Testing FIFO Driver Assignment
+
+
+📥 Adding drivers to queue...
+✅ Driver Rajesh Kumar added to queue
+✅ Driver Amit Sharma added to queue
+✅ Driver Priya Singh added to queue
+✅ Driver Vikram Patel added to queue
+✅ Driver Sunita Verma added to queue
+
+========== DRIVER QUEUE ==========
+Total Drivers Waiting: 5
+==================================
+
+Position 1:
+
+=== Driver Information ===
+ID: D001
+Name: Rajesh Kumar
+License: DL-1234567890
+Phone: +91-9876543210
+Experience: 5 years
+Status: AVAILABLE
+==========================
+
+Position 2:
+
+=== Driver Information ===
+ID: D002
+Name: Amit Sharma
+License: DL-2345678901
+Phone: +91-9876543211
+Experience: 8 years
+Status: AVAILABLE
+==========================
+
+Position 3:
+
+=== Driver Information ===
+ID: D003
+Name: Priya Singh
+License: DL-3456789012
+Phone: +91-9876543212
+Experience: 3 years
+Status: AVAILABLE
+==========================
+
+Position 4:
+
+=== Driver Information ===
+ID: D004
+Name: Vikram Patel
+License: DL-4567890123
+Phone: +91-9876543213
+Experience: 10 years
+Status: AVAILABLE
+==========================
+
+Position 5:
+
+=== Driver Information ===
+ID: D005
+Name: Sunita Verma
+License: DL-5678901234
+Phone: +91-9876543214
+Experience: 6 years
+Status: AVAILABLE
+==========================
+
+
+=== Queue Statistics ===
+Total Drivers: 5
+Queue Status: ACTIVE
+Next Driver: Rajesh Kumar
+=======================
+
+
+--- TESTING FIFO ASSIGNMENT ---
+
+Assigning drivers to vehicles in order...
+
+✅ Driver Rajesh Kumar assigned from queue
+Assigned to Vehicle V001
+✅ Driver Amit Sharma assigned from queue
+Assigned to Vehicle V003
+
+📋 Queue after 2 assignments:
+
+=== Queue Statistics ===
+Total Drivers: 3
+Queue Status: ACTIVE
+Next Driver: Priya Singh
+=======================
+
+
+========== DRIVER QUEUE ==========
+Total Drivers Waiting: 3
+==================================
+
+Position 1:
+
+=== Driver Information ===
+ID: D003
+Name: Priya Singh
+License: DL-3456789012
+Phone: +91-9876543212
+Experience: 3 years
+Status: AVAILABLE
+==========================
+
+Position 2:
+
+=== Driver Information ===
+ID: D004
+Name: Vikram Patel
+License: DL-4567890123
+Phone: +91-9876543213
+Experience: 10 years
+Status: AVAILABLE
+==========================
+
+Position 3:
+
+=== Driver Information ===
+ID: D005
+Name: Sunita Verma
+License: DL-5678901234
+Phone: +91-9876543214
+Experience: 6 years
+Status: AVAILABLE
+==========================
+
+
+--- TESTING PEEK (View without removing) ---
+Next driver in queue: Priya Singh
+Experience: 3 years
+
+--- ONE MORE ASSIGNMENT ---
+✅ Driver Priya Singh assigned from queue
+Assigned to Vehicle V004
+
+📋 Final Queue Status:
+
+=== Queue Statistics ===
+Total Drivers: 2
+Queue Status: ACTIVE
+Next Driver: Vikram Patel
+=======================
+
+
+========== DRIVER QUEUE ==========
+Total Drivers Waiting: 2
+==================================
+
+Position 1:
+
+=== Driver Information ===
+ID: D004
+Name: Vikram Patel
+License: DL-4567890123
+Phone: +91-9876543213
+Experience: 10 years
+Status: AVAILABLE
+==========================
+
+Position 2:
+
+=== Driver Information ===
+ID: D005
+Name: Sunita Verma
+License: DL-5678901234
+Phone: +91-9876543214
+Experience: 6 years
+Status: AVAILABLE
+==========================
+
+
+✅ Queue Module Complete!
+✅ FIFO Driver Assignment implemented!
+
+
+--- MODULE 3: MAINTENANCE PRIORITY HEAP ---
+Testing Min Heap for Urgent Maintenance
+
+
+🚗 Adding vehicles to maintenance heap...
+✅ Vehicle V101 added to maintenance heap (Priority: 11)
+✅ Vehicle V102 added to maintenance heap (Priority: 3)
+✅ Vehicle V103 added to maintenance heap (Priority: 13)
+✅ Vehicle V104 added to maintenance heap (Priority: 2)
+✅ Vehicle V105 added to maintenance heap (Priority: 8)
+✅ Vehicle V106 added to maintenance heap (Priority: 9)
+
+========== MAINTENANCE PRIORITY HEAP ==========
+Total Vehicles Pending Maintenance: 6
+===============================================
+
+Priority Rank 1:
+  Vehicle: V104 (Hyundai i10)
+  Priority Score: 2
+  Kilometers: 6000 km
+  Days Since Service: 40 days
+  Needs Maintenance: NO
+
+Priority Rank 2:
+  Vehicle: V102 (Maruti Suzuki)
+  Priority Score: 3
+  Kilometers: 9500 km
+  Days Since Service: 60 days
+  Needs Maintenance: NO
+
+Priority Rank 3:
+  Vehicle: V106 (Force Traveller)
+  Priority Score: 9
+  Kilometers: 22000 km
+  Days Since Service: 170 days
+  Needs Maintenance: YES ⚠️
+
+Priority Rank 4:
+  Vehicle: V101 (Tata Super Ace)
+  Priority Score: 11
+  Kilometers: 28000 km
+  Days Since Service: 180 days
+  Needs Maintenance: YES ⚠️
+
+Priority Rank 5:
+  Vehicle: V105 (Tata Ace)
+  Priority Score: 8
+  Kilometers: 18000 km
+  Days Since Service: 150 days
+  Needs Maintenance: YES ⚠️
+
+Priority Rank 6:
+  Vehicle: V103 (Mahindra Pickup)
+  Priority Score: 13
+  Kilometers: 35000 km
+  Days Since Service: 200 days
+  Needs Maintenance: YES ⚠️
+
+
+=== Min Heap Statistics ===
+Total Vehicles: 6
+Heap Status: ACTIVE
+Highest Priority: V104 (Priority: 2)
+Urgent Maintenance Needed: 4 vehicles
+===========================
+
+
+=== TOP 3 PRIORITY VEHICLES ===
+1. V104 - Hyundai i10 (Priority: 2)
+2. V102 - Maruti Suzuki (Priority: 3)
+3. V106 - Force Traveller (Priority: 9)
+================================
+
+
+--- SCHEDULING MAINTENANCE (Extracting Min) ---
+
+🔧 Scheduling 1st vehicle...
+✅ Vehicle V104 scheduled for maintenance (Priority: 2)
+Vehicle V104 sent to workshop
+
+🔧 Scheduling 2nd vehicle...
+✅ Vehicle V102 scheduled for maintenance (Priority: 3)
+Vehicle V102 sent to workshop
+
+🔧 Scheduling 3rd vehicle...
+✅ Vehicle V105 scheduled for maintenance (Priority: 8)
+Vehicle V105 sent to workshop
+
+
+📋 Remaining vehicles in maintenance queue:
+
+=== Min Heap Statistics ===
+Total Vehicles: 3
+Heap Status: ACTIVE
+Highest Priority: V106 (Priority: 9)
+Urgent Maintenance Needed: 3 vehicles
+===========================
+
+
+========== MAINTENANCE PRIORITY HEAP ==========
+Total Vehicles Pending Maintenance: 3
+===============================================
+
+Priority Rank 1:
+  Vehicle: V106 (Force Traveller)
+  Priority Score: 9
+  Kilometers: 22000 km
+  Days Since Service: 170 days
+  Needs Maintenance: YES ⚠️
+
+Priority Rank 2:
+  Vehicle: V101 (Tata Super Ace)
+  Priority Score: 11
+  Kilometers: 28000 km
+  Days Since Service: 180 days
+  Needs Maintenance: YES ⚠️
+
+Priority Rank 3:
+  Vehicle: V103 (Mahindra Pickup)
+  Priority Score: 13
+  Kilometers: 35000 km
+  Days Since Service: 200 days
+  Needs Maintenance: YES ⚠️
+
+
+--- TESTING PEEK (Next Priority Vehicle) ---
+Next vehicle for maintenance: V106
+Model: Force Traveller
+Priority Score: 9
+
+✅ Min Heap Module Complete!
+✅ O(log n) Priority-based Maintenance Scheduling implemented!
+
+
+--- MODULE 4: ROUTE OPTIMIZATION (GRAPH + DIJKSTRA) ---
+Testing Shortest Path Algorithm
+
+🗺️ Building city map...
+
+✅ Location added: Warehouse (ID: 0)
+✅ Location added: City Center (ID: 1)
+✅ Location added: Service Station (ID: 2)
+✅ Location added: Highway Junction (ID: 3)
+✅ Location added: Delivery Hub (ID: 4)
+✅ Location added: Industrial Area (ID: 5)
+
+🛣️ Adding road network...
+
+✅ Road added: Warehouse <-> City Center (15 km)
+✅ Road added: Warehouse <-> Service Station (8 km)
+✅ Road added: City Center <-> Highway Junction (12 km)
+✅ Road added: Service Station <-> Highway Junction (10 km)
+✅ Road added: Highway Junction <-> Delivery Hub (18 km)
+✅ Road added: City Center <-> Delivery Hub (25 km)
+✅ Road added: Service Station <-> Industrial Area (14 km)
+✅ Road added: Delivery Hub <-> Industrial Area (20 km)
+
+========== FLEET NETWORK MAP ==========
+Total Locations: 6
+=======================================
+
+Warehouse (ID: 0) connects to:
+  → Service Station (8 km)
+  → City Center (15 km)
+
+City Center (ID: 1) connects to:
+  → Delivery Hub (25 km)
+  → Highway Junction (12 km)
+  → Warehouse (15 km)
+
+Service Station (ID: 2) connects to:
+  → Industrial Area (14 km)
+  → Highway Junction (10 km)
+  → Warehouse (8 km)
+
+Highway Junction (ID: 3) connects to:
+  → Delivery Hub (18 km)
+  → Service Station (10 km)
+  → City Center (12 km)
+
+Delivery Hub (ID: 4) connects to:
+  → Industrial Area (20 km)
+  → City Center (25 km)
+  → Highway Junction (18 km)
+
+Industrial Area (ID: 5) connects to:
+  → Delivery Hub (20 km)
+  → Service Station (14 km)
+
+
+========================================
+  TEST CASE 1: Warehouse to Delivery Hub
+========================================
+
+🚗 Calculating shortest route...
+From: Warehouse
+To: Delivery Hub
+
+--- DIJKSTRA'S ALGORITHM EXECUTION ---
+Processing: Warehouse (Distance: 0 km)
+  → Updated Service Station distance to 8 km
+  → Updated City Center distance to 15 km
+Processing: Service Station (Distance: 8 km)
+  → Updated Industrial Area distance to 22 km
+  → Updated Highway Junction distance to 18 km
+Processing: City Center (Distance: 15 km)
+  → Updated Delivery Hub distance to 40 km
+Processing: Highway Junction (Distance: 18 km)
+  → Updated Delivery Hub distance to 36 km
+Processing: Industrial Area (Distance: 22 km)
+
+========== ROUTE RESULT ==========
+✅ Shortest Distance: 36 km
+
+📍 Route Path:
+Warehouse --(8 km)--> Service Station --(10 km)--> Highway Junction --(18 km)--> Delivery Hub
+
+==================================
+
+
+========================================
+  TEST CASE 2: Warehouse to Industrial Area
+========================================
+
+🚗 Calculating shortest route...
+From: Warehouse
+To: Industrial Area
+
+--- DIJKSTRA'S ALGORITHM EXECUTION ---
+Processing: Warehouse (Distance: 0 km)
+  → Updated Service Station distance to 8 km
+  → Updated City Center distance to 15 km
+Processing: Service Station (Distance: 8 km)
+  → Updated Industrial Area distance to 22 km
+  → Updated Highway Junction distance to 18 km
+Processing: City Center (Distance: 15 km)
+  → Updated Delivery Hub distance to 40 km
+Processing: Highway Junction (Distance: 18 km)
+  → Updated Delivery Hub distance to 36 km
+Processing: Industrial Area (Distance: 22 km)
+
+========== ROUTE RESULT ==========
+✅ Shortest Distance: 22 km
+
+📍 Route Path:
+Warehouse --(8 km)--> Service Station --(14 km)--> Industrial Area
+
+==================================
+
+
+========================================
+  TEST CASE 3: City Center to Service Station
+========================================
+
+🚗 Calculating shortest route...
+From: City Center
+To: Service Station
+
+--- DIJKSTRA'S ALGORITHM EXECUTION ---
+Processing: City Center (Distance: 0 km)
+  → Updated Delivery Hub distance to 25 km
+  → Updated Highway Junction distance to 12 km
+  → Updated Warehouse distance to 15 km
+Processing: Highway Junction (Distance: 12 km)
+  → Updated Service Station distance to 22 km
+Processing: Warehouse (Distance: 15 km)
+Processing: Service Station (Distance: 22 km)
+  → Updated Industrial Area distance to 36 km
+Processing: Delivery Hub (Distance: 25 km)
+
+========== ROUTE RESULT ==========
+✅ Shortest Distance: 22 km
+
+📍 Route Path:
+City Center --(12 km)--> Highway Junction --(10 km)--> Service Station
+
+==================================
+
+
+========================================
+  TEST CASE 4: Service Station to Delivery Hub
+========================================
+
+🚗 Calculating shortest route...
+From: Service Station
+To: Delivery Hub
+
+--- DIJKSTRA'S ALGORITHM EXECUTION ---
+Processing: Service Station (Distance: 0 km)
+  → Updated Industrial Area distance to 14 km
+  → Updated Highway Junction distance to 10 km
+  → Updated Warehouse distance to 8 km
+Processing: Warehouse (Distance: 8 km)
+  → Updated City Center distance to 23 km
+Processing: Highway Junction (Distance: 10 km)
+  → Updated Delivery Hub distance to 28 km
+  → Updated City Center distance to 22 km
+Processing: Industrial Area (Distance: 14 km)
+Processing: City Center (Distance: 22 km)
+
+========== ROUTE RESULT ==========
+✅ Shortest Distance: 28 km
+
+📍 Route Path:
+Service Station --(10 km)--> Highway Junction --(18 km)--> Delivery Hub
+
+==================================
+
+
+✅ Graph + Dijkstra Module Complete!
+✅ O(E log V) Shortest Path Algorithm implemented!
+
+
+--- MODULE 5: B-TREE VEHICLE INDEX ---
+Testing Sorted Storage & Range Queries
+
+🚗 Adding vehicles to B-Tree index (random order)...
+
+✅ Vehicle V205 inserted into B-Tree at position 0
+✅ Vehicle V203 inserted into B-Tree at position 0
+✅ Vehicle V208 inserted into B-Tree at position 2
+✅ Vehicle V201 inserted into B-Tree at position 0
+✅ Vehicle V207 inserted into B-Tree at position 3
+✅ Vehicle V202 inserted into B-Tree at position 1
+
+
+========== B-TREE SORTED INDEX ==========
+Total Vehicles: 6
+=========================================
+
+1. V201 - DL-08-EF-9012 (Maruti Omni)
+2. V202 - TN-09-IJ-7890 (Force Traveller)
+3. V203 - GJ-01-AB-1234 (Tata Winger)
+4. V205 - RJ-14-XY-7890 (Eicher Truck)
+5. V207 - KA-05-GH-3456 (Ashok Leyland)
+6. V208 - MH-14-CD-5678 (Mahindra Scorpio)
+
+
+=== B-Tree Statistics ===
+Total Vehicles: 6
+Storage Type: Sorted Array (B-Tree simulation)
+Search Complexity: O(log n)
+Insert Complexity: O(n)
+Tree Status: ACTIVE
+=========================
+
+
+--- TESTING BINARY SEARCH (O(log n)) ---
+Searching for V205...
+✅ Found: Eicher Truck (V205)
+   Registration: RJ-14-XY-7890
+
+Searching for V201...
+✅ Found: Maruti Omni (V201)
+
+Searching for V999 (doesn't exist)...
+❌ Vehicle not found (as expected)
+
+
+=== RANGE QUERY: V203 to V207 ===
+V203 - Tata Winger
+V205 - Eicher Truck
+V207 - Ashok Leyland
+==============================
+
+
+✅ B-Tree Module Complete!
+✅ O(log n) Binary Search & Sorted Storage implemented!
+
+--- TESTING DUPLICATE PREVENTION ---
+✅ Vehicle VB99 inserted into B-Tree at position 6
+
+✅ B-Tree Module Complete!
+✅ O(log n) Sorted Indexing & Range Queries implemented!
+
+
+--- MODULE 6: LRU CACHE FOR FAST LOOKUPS ---
+Testing O(1) Caching with Automatic Eviction
+
+📦 Simulating vehicle access patterns...
+
+1. Accessing V001...
+💾 Cached: V001 (Size: 1/10)
+
+2. Accessing V003...
+💾 Cached: V003 (Size: 2/10)
+
+3. Accessing V004...
+💾 Cached: V004 (Size: 3/10)
+
+4. Accessing V001 again (Cache Hit)...
+✅ Cache HIT: V001 (O(1))
+Found: Tata Ace
+
+5. Accessing V999 (not in cache)...
+❌ Cache MISS: V999
+Vehicle not found in cache
+
+6. Adding more vehicles to test eviction...
+💾 Cached: V100 (Size: 4/10)
+💾 Cached: V101 (Size: 5/10)
+💾 Cached: V102 (Size: 6/10)
+💾 Cached: V103 (Size: 7/10)
+💾 Cached: V104 (Size: 8/10)
+💾 Cached: V105 (Size: 9/10)
+💾 Cached: V106 (Size: 10/10)
+🗑️ Evicting LRU: V003
+💾 Cached: V107 (Size: 10/10)
+🗑️ Evicting LRU: V004
+💾 Cached: V108 (Size: 10/10)
+🗑️ Evicting LRU: V001
+💾 Cached: V109 (Size: 10/10)
+🗑️ Evicting LRU: V100
+💾 Cached: V110 (Size: 10/10)
+🗑️ Evicting LRU: V101
+💾 Cached: V111 (Size: 10/10)
+
+=== LRU Cache Statistics ===
+Cache Size: 10/10
+Cache Hits: 1
+Cache Misses: 1
+Hit Rate: 50%
+
+Most Recently Used (MRU → LRU):
+1. V111 - Test Model
+2. V110 - Test Model
+3. V109 - Test Model
+4. V108 - Test Model
+5. V107 - Test Model
+6. V106 - Test Model
+7. V105 - Test Model
+8. V104 - Test Model
+9. V103 - Test Model
+10. V102 - Test Model
+============================
+
+
+7. Verify old entries were evicted...
+❌ Cache MISS: V003
+✅ Correctly evicted: V003 no longer in cache (LRU policy working!)
+
+✅ LRU Cache Module Complete!
+✅ O(1) Fast Lookups with Automatic LRU Eviction implemented!
+
+
+--- MODULE 7: TRIE FOR AUTOCOMPLETE SEARCH ---
+Testing O(m) Prefix Search & Suggestions
+
+🔤 Building search index...
+
+✅ Indexed for autocomplete: V001 (V001)
+✅ Indexed for autocomplete: V002 (V002)
+✅ Indexed for autocomplete: V003 (V003)
+✅ Indexed for autocomplete: V004 (V004)
+✅ Indexed for autocomplete: V101 (V101)
+✅ Indexed for autocomplete: V102 (V102)
+✅ Indexed for autocomplete: V103 (V103)
+✅ Indexed for autocomplete: V104 (V104)
+✅ Indexed for autocomplete: V105 (V105)
+✅ Indexed for autocomplete: V106 (V106)
+✅ Indexed for autocomplete: V201 (V201)
+✅ Indexed for autocomplete: V202 (V202)
+✅ Indexed for autocomplete: V203 (V203)
+✅ Indexed for autocomplete: V205 (V205)
+✅ Indexed for autocomplete: V207 (V207)
+✅ Indexed for autocomplete: V208 (V208)
+✅ Indexed 16 vehicle IDs
+
+--- TESTING EXACT SEARCH ---
+Searching for 'V003'...
+✅ Found: V003 exists in database
+
+Searching for 'V999'...
+❌ Not Found: V999 doesn't exist (expected)
+
+--- TESTING PREFIX SEARCH (StartsWith) ---
+Checking if any vehicle starts with 'V1'...
+✅ Found vehicles starting with 'V1'
+
+Checking if any vehicle starts with 'V9'...
+❌ No vehicles start with 'V9' (expected)
+
+--- TESTING AUTOCOMPLETE ---
+
+Autocomplete suggestions for 'V0':
+  → V001
+  → V002
+  → V003
+  → V004
+
+Autocomplete suggestions for 'V1':
+  → V101
+  → V102
+  → V103
+  → V104
+  → V105
+  → V106
+
+Autocomplete suggestions for 'V2':
+  → V201
+  → V202
+  → V203
+  → V205
+  → V207
+  → V208
+
+Autocomplete suggestions for 'V20':
+  → V201
+  → V202
+  → V203
+  → V205
+  → V207
+  → V208
+
+✅ Trie Module Complete!
+✅ O(m) Autocomplete & Prefix Search implemented!
+
+
+
+╔════════════════════════════════════════╗
+║  🎯 PERFORMANCE BENCHMARKING SUITE 🎯  ║
+║   Advanced DSA Analysis & Comparison   ║
+╚════════════════════════════════════════╝
+
+========================================
+  BENCHMARK 1: SEARCH PERFORMANCE
+========================================
+
+📊 Test Data Size: 1000 vehicles
+
+Searching for: V10000
+  Hash Table O(1): 0 μs
+  Linear Search O(n): 0 μs
+Searching for: V10500
+  Hash Table O(1): 0 μs
+  Linear Search O(n): 40 μs
+  ⚡ Hash Table is infx FASTER!
+
+Searching for: V10999
+  Hash Table O(1): 0 μs
+  Linear Search O(n): 119 μs
+  ⚡ Hash Table is infx FASTER!
+
+✅ Hash Table consistently delivers O(1) performance!
+✅ Linear search degrades with position (worst case at end)
+
+
+========================================
+  BENCHMARK 2: BINARY SEARCH vs LINEAR
+========================================
+
+📊 Test Data Size: 10000 vehicles
+
+Searching for: V29500 (middle position)
+
+Binary Search O(log n): 3 μs
+Linear Search O(n): 966 μs
+⚡ Binary Search is 322x FASTER!
+
+✅ Binary Search scales logarithmically!
+✅ For 10,000 items: log₂(10000) ≈ 13 comparisons
+
+
+========================================
+  BENCHMARK 3: HEAP vs BUBBLE SORT
+========================================
+
+📊 Test Data Size: 500 vehicles
+
+Bubble Sort O(n²): 2 ms
+Quick Sort O(n log n): 0 ms
+✅ Heap-based sorting provides O(n log n) performance!
+✅ Essential for large-scale fleet management!
+
+
+========================================
+  BENCHMARK 4: SPACE-TIME TRADEOFF
+========================================
+
+Data Structure Analysis:
+
+1. Hash Table:
+   Time: O(1) search, insert, delete
+   Space: O(n + table_size) - uses extra memory for buckets
+   Trade-off: ✅ Fastest lookups, ❌ Higher memory usage
+
+2. B-Tree (Sorted Array):
+   Time: O(log n) search, O(n) insert
+   Space: O(n) - compact storage
+   Trade-off: ✅ Range queries, ✅ Memory efficient
+
+3. Min Heap:
+   Time: O(1) find-min, O(log n) insert/extract
+   Space: O(n) - compact array representation
+   Trade-off: ✅ Fast priority access, ✅ Efficient storage
+
+4. LRU Cache:
+   Time: O(1) get/put operations
+   Space: O(cache_size) - fixed memory budget
+   Trade-off: ✅ Ultra-fast, ✅ Bounded memory
+
+5. Trie (Autocomplete):
+   Time: O(m) where m = string length
+   Space: O(ALPHABET_SIZE * n * m) - can be large
+   Trade-off: ✅ Fast prefix search, ❌ Higher space
+
+6. Graph + Dijkstra:
+   Time: O(E log V) shortest path
+   Space: O(V + E) adjacency list
+   Trade-off: ✅ Optimal paths, ✅ Scalable
+
+
+========================================
+  ✅ ALL BENCHMARKS COMPLETED!
+========================================
+
+💡 Key Takeaways:
+1. Hash Tables provide O(1) lookups - crucial for real-time systems
+2. Binary Search reduces 10,000 comparisons to ~13
+3. Heap-based sorting outperforms bubble sort significantly
+4. Space-time tradeoffs guide DSA selection
+5. Proper DSA choice impacts production performance!
+
+
+
+========================================
+  🎉 ALL MODULES COMPLETED! 🎉
+========================================
+
+📊 DSA Implementation Summary:
+
+✅ MODULE 1: Hash Table
+   → O(1) Vehicle Management
+   → Insert, Search, Delete operations
+
+✅ MODULE 2: Queue (FIFO)
+   → Fair Driver Assignment
+   → Enqueue, Dequeue operations
+
+✅ MODULE 3: Min Heap
+   → O(log n) Priority Scheduling
+   → Maintenance based on priority
+
+✅ MODULE 4: Graph + Dijkstra
+   → O(E log V) Route Optimization
+   → Shortest path calculation
+
+✅ MODULE 5: B-Tree
+   → O(log n) Sorted Indexing
+   → Balanced tree for disk-based storage
+
+✅ MODULE 6: LRU Cache (Advanced)
+   → O(1) Fast Repeated Lookups
+   → Automatic eviction policy
+
+✅ MODULE 7: Trie (Advanced)
+   → O(m) Autocomplete Search
+   → Prefix-based vehicle search
+
+✅ MODULE 8: Performance Benchmarks
+   → Real-time complexity analysis
+   → Space-time tradeoff evaluation
+
+========================================
+  🌟 ADVANCED FEATURES INCLUDED! 🌟
+  Ready for Teacher Demonstration! 🚀
+========================================
+
+✅ Driver Vikram Patel assigned from queue
+✅ Driver Sunita Verma assigned from queue
