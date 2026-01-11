@@ -14,5 +14,13 @@
     "name": "Abdullah",
     "role": "EMPLOYEE",
     "status": "ACTIVE"
+  },
+  {
+    "userId": "U003",
+    "email": "abdullah@gmail.com",
+    "password": "abdullah123",
+    "name": "abdullah",
+    "role": "EMPLOYEE",
+    "status": "PENDING"
   }
 ]
